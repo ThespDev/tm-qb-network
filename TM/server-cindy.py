@@ -20,7 +20,9 @@ try:
             data = client_socket.recv(4096)
             if not data:
                 break
-            client_socket.sendall(data)
+            # Construct an HTTP response with a header and body
+            http_response = b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Hello, World!</h1></body></html>"
+            client_socket.sendall(http_response)
     finally:
         client_socket.close()
 finally:
