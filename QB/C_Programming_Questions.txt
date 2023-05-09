@@ -1,0 +1,59 @@
+C Programming Questions
+
+Question 
+#1) What are the key features in the C programming language?
+
+Answer 
+Features are as follows:
+
+    Portability: It is a platform-independent language.
+    Modularity: Possibility to break down large programs into small modules.
+    Flexibility: The possibility of a programmer to control the language.
+    Speed: C comes with support for system programming and hence it compiles and executes with high speed when compared with other high-level languages.
+    Extensibility: Possibility to add new features by the programmer.
+*
+
+Question 
+#2) What are the basic data types associated with C?
+
+Answer
+    Int – Represent the number (integer)
+    Float – Number with a fraction part.
+    Double – Double-precision floating-point value
+    Char – Single character
+    Void – Special purpose type without any value.
+*
+
+Question 
+#3) What is the description for syntax errors?
+
+Answer 
+The mistakes/errors that occur while creating a program are called syntax errors. Misspelled commands or incorrect case commands, an incorrect number of parameters in calling method /function, data type mismatches can be identified as common examples for syntax errors.
+
+Question
+#4) What is the process to create increment and decrement statement in C?
+
+Answer: There are two possible methods to perform this task.
+
+    Use increment (++) and decrement (-) operator.
+
+Example When x=4, x++ returns 5 and x- returns 3.
+
+    Use conventional + or – sign.
+
+Example When x=4, use x+1 to get 5 and x-1 to get 3.
+
+Question
+#5) What are reserved words with a programming language?
+
+Answer: The words that are a part of the standard C language library are called reserved words. Those reserved words have special meaning and it is not possible to use them for any activity other than its intended functionality.
+
+Example: void, return int.
+
+Question
+#6) What is the explanation for the dangling pointer in C?
+
+Answer: 
+When there is a pointer pointing to a memory address of any variable, but after some time the variable was deleted from the memory location while keeping the pointer pointing to that location is known as a dangling pointer in C.
+
+
