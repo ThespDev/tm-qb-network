@@ -1,0 +1,89 @@
+Python Programming Questions
+
+MC:
+Which of the following is a valid Python data type?
+    a) intstr
+    b) float
+    c) char
+    d) bool
+
+MCA:
+b) float
+
+MC:
+What does the "range()" function do in Python?
+    a) Generates a list of numbers from 1 to n-1
+    b) Generates a list of numbers from 0 to n-1
+    c) Generates a list of numbers from 1 to n
+    d) Generates a list of numbers from 0 to n
+
+MCA:
+d) Generates a list of numbers from 0 to n
+
+MC:
+What is the purpose of the "import" statement in Python?
+    a) To declare a new variable
+    b) To import a module or library into the current program
+    c) To define a new function
+    d) To print output to the console
+
+MCA:
+b) To import a module or library into the current program
+
+MC:
+Which of the following is an example of a conditional statement in Python?
+    a) for loop
+    b) while loop
+    c) if statement
+    d) None of the above
+
+MCA:
+c) if statement
+
+MC:
+Which of the following is an example of a conditional statement in Python?
+    a) for loop
+    b) while loop
+    c) if statement
+    d) None of the above
+
+MCA:
+c) if statement
+
+Q:
+What is the output of the following code?
+
+x = 5
+y = 2
+print(x % y)
+
+A:
+The output will be 1. The % operator returns the remainder of division, so 5 % 2 is 1.
+
+Q:
+What is the difference between a tuple and a list in Python?
+
+A:
+A tuple is an immutable sequence of elements, while a list is a mutable sequence of elements. This means that you can change the elements in a list, but you cannot change the elements in a tuple.
+
+Q:
+What is the difference between append() and extend() in Python lists?
+
+A:
+Append() adds an element to the end of a list, while extend() adds the elements of another list to the end of the first list.
+
+Q:
+What is the purpose of a docstring in Python?
+
+A:
+A docstring is used to provide documentation for a function, class, or module. It should describe what the function does, what arguments it takes, and what it returns. Docstrings can be accessed using the help() function.
+
+Q:
+How do you check if a key exists in a dictionary?
+
+A:
+You can use the in keyword to check if a key exists in a dictionary. For example:
+
+my_dict = {'a': 1, 'b': 2, 'c': 3}
+if 'a' in my_dict:
+    print('Key exists!')
