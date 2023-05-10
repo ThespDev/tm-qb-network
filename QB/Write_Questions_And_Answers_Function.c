@@ -10,12 +10,12 @@ int main(int argc, char *argv[]) {
    strcpy(filename, argv[1]);
 
    // open appropriate file based on filename
-   if(strcmp(filename, "C-Programming_Questions.txt") == 0) { // if server requests file1.txt
-      fp = fopen("C-Programming_Questions.txt", "r"); // open file1.txt for reading
-   } else if(strcmp(filename, "JAVA_Programming_Questions.txt") == 0) { // if server requests file2.txt
-      fp = fopen("JAVA_Programming_Questions.txt", "r"); // open file2.txt for reading
-   } else if(strcmp(filename, "file3.txt") == 0) { // if server requests file3.txt
-      fp = fopen("Python_Programming_Questions.txt", "r"); // open file3.txt for reading
+   if(strcmp(filename, "C-Programming_Questions.txt") == 0) { // if server requests C-Programming_Questions.txt
+      fp = fopen("C-Programming_Questions.txt", "r"); // open C-Programming_Questions.txt for reading
+   } else if(strcmp(filename, "JAVA_Programming_Questions.txt") == 0) { // if server requests JAVA_Programming_Questions.txt
+      fp = fopen("JAVA_Programming_Questions.txt", "r"); // open JAVA_Programming_Questions.txt for reading
+   } else if(strcmp(filename, "file3.txt") == 0) { // if server requests Python_Programming_Questions.txt
+      fp = fopen("Python_Programming_Questions.txt", "r"); // open Python_Programming_Questions.txt for reading
    } else { // if server requests an invalid filename
       printf("Invalid filename\n"); // print error message
       exit(1); // exit program with error code
