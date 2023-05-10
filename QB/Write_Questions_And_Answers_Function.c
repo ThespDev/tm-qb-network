@@ -1,4 +1,4 @@
-i#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -21,12 +21,14 @@ int main(int argc, char *argv[]) {
       exit(1); // exit program with error code
    }
 
+// function to write a question and its answer to a file
 void write_question_and_answer(char* file_path, char* question, char* answer){
     FILE* file = fopen(file_path, "a");
     fprintf(file, "Q: %s\nA: %s\n\n", question, answer);
     fclose(file);
 }
 
+// function to read a random question and its answer from a file
 void read_random_question_and_answer(char* file_path){
     FILE* file = fopen(file_path, "r");
     char line[1000];
@@ -36,6 +38,8 @@ void read_random_question_and_answer(char* file_path){
     int multiple_choice = 0;
     int answer_found = 0;
     int count = 0;
+
+    // loop through the file to find the questions and answers
     while (fgets(line, sizeof(line), file)) {
         if (strstr(line, "Q: ") != NULL) {
             question_found = 1;
@@ -54,7 +58,8 @@ void read_random_question_and_answer(char* file_path){
     fclose(file);
 }
 
- while (fgets(line, sizeof(line), file)) {
+    // loop through the file to find multiple-choice questions and answers
+    while (fgets(line, sizeof(line), file)) {
         if (strstr(line, "MC: ") != NULL) {
             multiple_choice_found = 1;
             answer_found = 0;
@@ -63,13 +68,13 @@ void read_random_question_and_answer(char* file_path){
                 fgets(line, sizeof(line), file);
                 strcpy(answer, line + 3);
             }
-        } else if (strstr(line, "A: ") != NULL) {
+        } else if (strstr(line, "MCA: ") != NULL) {
             answer_found = 1;
             question_found = 0;
         }
     }
     printf("%s%s\n", question, answer);
-    fclose(file);
+    fclose(file); // close the file
 }
 
 void search_and_print(char* file_path, char* keyword){
@@ -100,5 +105,5 @@ int main() {
             }
         }
     }
-    fclose(file);
+    fclose(file); // close the file
 }
