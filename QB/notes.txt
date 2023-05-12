@@ -1,0 +1,6 @@
+ Could be smart to have "expected words" in text based answers, so test takers don't have to get an exact match to a paragraph of text, and as long as words mentioned is fine
+-Schmil
+
+*also ">" delinates start of code in CSV file, so format differently when displaying to user
+could be smart to add a \n after every ; within the boundaries of ">"
+-Schmil
