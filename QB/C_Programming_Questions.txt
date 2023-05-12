@@ -1,9 +1,9 @@
 C Programming Questions
 
-Question 
-#1) What are the key features in the C programming language?
+Q:
+What are the key features in the C programming language?
 
-Answer 
+A:
 Features are as follows:
 
     Portability: It is a platform-independent language.
@@ -11,29 +11,28 @@ Features are as follows:
     Flexibility: The possibility of a programmer to control the language.
     Speed: C comes with support for system programming and hence it compiles and executes with high speed when compared with other high-level languages.
     Extensibility: Possibility to add new features by the programmer.
-*
 
-Question 
-#2) What are the basic data types associated with C?
+Q:
+What are the basic data types associated with C?
 
-Answer
+A:
     Int – Represent the number (integer)
     Float – Number with a fraction part.
     Double – Double-precision floating-point value
     Char – Single character
     Void – Special purpose type without any value.
-*
 
-Question 
-#3) What is the description for syntax errors?
+Q:
+What is the description for syntax errors?
 
-Answer 
+A:
 The mistakes/errors that occur while creating a program are called syntax errors. Misspelled commands or incorrect case commands, an incorrect number of parameters in calling method /function, data type mismatches can be identified as common examples for syntax errors.
 
-Question
-#4) What is the process to create increment and decrement statement in C?
+Q:
+What is the process to create increment and decrement statement in C?
 
-Answer: There are two possible methods to perform this task.
+A:
+There are two possible methods to perform this task.
 
     Use increment (++) and decrement (-) operator.
 
@@ -43,17 +42,73 @@ Example When x=4, x++ returns 5 and x- returns 3.
 
 Example When x=4, use x+1 to get 5 and x-1 to get 3.
 
-Question
-#5) What are reserved words with a programming language?
+Q:
+What are reserved words with a programming language?
 
-Answer: The words that are a part of the standard C language library are called reserved words. Those reserved words have special meaning and it is not possible to use them for any activity other than its intended functionality.
+A:
+The words that are a part of the standard C language library are called reserved words. Those reserved words have special meaning and it is not possible to use them for any activity other than its intended functionality.
 
 Example: void, return int.
 
-Question
-#6) What is the explanation for the dangling pointer in C?
+MC:
+Which of the following is not a valid data type in C?
+a) int
+b) string
+c) float
+d) char
 
-Answer: 
-When there is a pointer pointing to a memory address of any variable, but after some time the variable was deleted from the memory location while keeping the pointer pointing to that location is known as a dangling pointer in C.
+MCA:
+b) string
+
+MCA:
+What is the output of the following code snippet?
+
+int x = 5;
+printf("%d\n", x++);
+
+a) 6
+b) 5
+c) Error
+d) Undefined
+
+MCA:
+b) 5
+
+MC:
+What is the purpose of the "break" keyword in C?
+a) To end a loop or switch statement
+b) To skip a loop iteration
+c) To continue executing a loop
+d) None of the above
+
+MCA:
+a) To end a loop or switch statement
+
+MC:
+What is the value of x after the following code snippet?
+
+int x = 10;
+x += 5;
+
+a) 5
+b) 10
+c) 15
+d) 20
+
+MCA:
+c) 15
+
+MC:
+Which of the following is a valid way to declare a pointer in C?
+a) int* x;
+b) int *x;
+c) int * x;
+d) All of the above
+
+MCA:
+d) All of the above
+
+
+
 
 
