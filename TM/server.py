@@ -6,10 +6,17 @@ import http
 
 verbose =  True
 # Define socket host and port
-host = 'localhost'
+host = ''
 HTTP_PORT = 9001
 QB_PORT = 9002
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((host, HTTP_PORT))
+server_socket.listen()
+
 sel = selectors.DefaultSelector()
+sel.register(server_socket, selectors.EVENT_READ, data=None)
+print(f'Server listening on {host}:{HTTP_PORT}...')
+
 def verify_user(username,password):
     f = open('users.json')
     data = json.load(f)
@@ -22,10 +29,12 @@ def verify_user(username,password):
 def accept(sock):
     conn, addr = sock.accept()  # Should be ready
     if verbose: print('accepted', conn, 'from', addr)
+
+    events = selectors.EVENT_READ | selectors.EVENT_WRITE
+
+    sel.register(conn, events, data=data)
     conn.setblocking(False)
     data = addr
-    events = selectors.EVENT_READ | selectors.EVENT_WRITE
-    sel.register(conn, events, data=data)
 
 def service_connection(key, mask):
     sock = key.fileobj
@@ -82,25 +91,6 @@ with open("login_page.html","r") as login_page:
 
 with open("multi_choice.html","r") as multi_page:
     multiHTML = multi_page.read()
-    
-
-
-# Create socket
-http_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-http_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-http_socket.bind((host, HTTP_PORT))
-http_socket.listen()
-if verbose: print('Listening on port %s ...' % HTTP_PORT)
-http_socket.setblocking(False)
-
-qb_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-qb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-qb_socket.bind((host,QB_PORT))
-qb_socket.listen(1)
-if verbose: print('Listening on port %s ...' % QB_PORT)
-qb_socket.setblocking(False)
-sel.register(http_socket,selectors.EVENT_READ,data=None)
-sel.register(qb_socket, selectors.EVENT_READ, data=None)
 
 while True:
     events = sel.select(timeout=None)
