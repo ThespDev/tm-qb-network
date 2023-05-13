@@ -1,13 +1,8 @@
 #Question Number,Question Type (Multi-choice/Text/Code),Question Body,QuestionAnwser/ExpectedResult,Questionpsotibilities(multichoiceonly)
-1,Text,What are the key features in the C programming language?,Portability: It is a platform-independent language. Modularity: Possibility to break down large programs into small modules. Flexibility: The possibility of a programmer to control the language.  Speed: C comes with support for system programming and hence it compiles and executes with high speed when compared with other high-level languages.     Extensibility: Possibility to add new features by the programmer.,
-2,Text,What are the basic data types associated with C?,Int – Represent the number (integer) Float – Number with a fraction part. Double – Double-precision floating-point value Char – Single character Void – Special purpose type without any value. ,
-3,Text,What is the description for Syntax Errors,"The mistakes/errors that occur while creating a program are called syntax errors. Misspelled commands or incorrect case commands, an incorrect number of parameters in calling method /function, data type mismatches can be identified as common examples for syntax errors.",
-4,Text,What is the process to create increment and decrement statement in C?,"There are two possible methods to perform this task.    Use increment (++) and decrement (-) operator.  Example When x=4, x++ returns 5 and x- returns 3.      Use conventional + or – sign.  Example When x=4, use x+1 to get 5 and x-1 to get 3.",
-5,Text,What are reserved words with a programming language?,"The words that are a part of the standard C language library are called reserved words. Those reserved words have special meaning and it is not possible to use them for any activity other than its intended functionality. Example: void, return int. ",
-6,MCA,Which of the following is not a valid data type in C?,a) int b) string c) float d) char ,b
-7,MCA,"What is the output of the following code snippet?  >int x = 5; printf(""%d\n"", x++);<",a) 6 b) 5 c) Error d) Undefined,b
-8,MCA,"What is the purpose of the ""break"" keyword in C?",a) To end a loop or switch statement b) To skip a loop iteration c) To continue executing a loop d) None of the above,a
-9,MCA,Which of the following is a valid way to declare a pointer in C?,a) int* x; b) int *x; c) int * x; d) All of the above,d
-10,MCA,What is the value of x after the following code snippet?  >int x = 10; x += 5;<,a) 5 b) 10 c) 15 d) 20,c
-11,Code,Write Code to output “Hello World”,"arg: expected:”Hello World""",
-12,Code,Write Code to output and argument as a string,"arg: Hello expected: “Hello”; arg: 1 expceted: “1""",
+1,MCA,Which of the following is not a valid data type in C?,>int >string >float >char ,1
+2,MCA,"What is the output of the following code snippet?  >int x = 5; printf(""%d\n"", x++);<",>6 >5 >Error >Undefined,1
+3,MCA,"What is the purpose of the ""break"" keyword in C?",>To end a loop or switch statement >To skip a loop iteration >To continue executing a loop >None of the above,0
+4,MCA,Which of the following is a valid way to declare a pointer in C?,a) int* x,1
+5,MCA,What is the value of x after the following code snippet?  >int x = 10, x += 5,
+6,Code,Write Code to output “Hello World”,"arg: expected:”Hello World""",
+7,Code,Write Code to output and argument as a string,"arg: Hello expected: “Hello”; arg: 1 expceted: “1""",
