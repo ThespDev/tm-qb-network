@@ -1,6 +1,14 @@
 {
-  "pablo":"password",
-  "will":"12345"
+  "users":{
+    "pablo":{
+      "hash": "bb501f06b30cc6e55ab54a0c501c0e3d",
+      "password":"password"
+    },
+    "will":{
+      "hash": "f8d87f3b5e17830f3a2b78768c74e67f",
+      "password":"12345"
+    }
+  }
 }
 
 
