@@ -19,8 +19,13 @@ struct programq {
   int qnum;
   char* qtext;
   char* lang; //C99, Java or Python
-  char* inputs[3];    //What is expected to go in
+  char* inputs[3];  //What is expected to go in
   char* outputs[3]; //What is expected to come out 
+};
+
+struct parsedcsv{
+  struct programq programqs[100];
+  struct multi_choiceq multi_choiceqs[100];
 };
 
 const char Usage_msg[] = ("USAGE: ./Write_Questions <file path> <Langauge used>");
@@ -43,22 +48,10 @@ char* getfield(char* line, int num)
     }
     return NULL;
 }
-
-
-//int fileparser(filepath,language) {
-// using as main for now, but shouldn't be starting place for server, better to call it as a function
-int main(int argc, char *argv[]) {
-   // get filename from server request
-   if (argc != 3 ) {
-    printf("Error too many or too little arguments\n Current argument count: %i",argc); usage();
-   }
-
+                                //Either C99, Java or Python
+struct parsedcsv parsingcsv(char *filename,char* Language){
   FILE *fp;
-  char filename[20]; //track name of file variable
-  char Language[sizeof(argv[2])]; //track Language
 
-  strcpy(filename, argv[1]);
-  strcpy(Language, argv[2]);
   fp = fopen(filename, "r"); // open file for reading
    if (fp == NULL){
     printf("Internal Error: Unable to open file %s",filename); usage(); 
@@ -67,7 +60,7 @@ int main(int argc, char *argv[]) {
   char line[LINELENGTH];
   
   struct multi_choiceq multiq[100];
-  struct programq codeq[200];
+  struct programq codeq[100];
   int MCA_Counter = 0;
   int Code_Counter = 0;
   while (fgets(line, LINELENGTH, fp))
@@ -120,8 +113,11 @@ int main(int argc, char *argv[]) {
         }
        free(tmp);
     }
-    printf("Parssisng successs!");
-  
+    printf("Parsisng successs!");
+    struct parsedcsv returnstruct;
+    memcpy(returnstruct.programqs,codeq,sizeof(codeq));
+    memcpy(returnstruct.multi_choiceqs,multiq,sizeof(multiq));
+    return returnstruct;
 } 
   
   
