@@ -1,8 +1,37 @@
-#Question Number,Question Type (Multi-choice/Text/Code),Question Body,QuestionAnwser/ExpectedResult,Questionpsotibilities(multichoiceonly)
-1,MCA,Which of the following is not a valid data type in C?,>int >string >float >char ,1
-2,MCA,"What is the output of the following code snippet?  >int x = 5; printf(""%d\n"", x++);<",>6 >5 >Error >Undefined,1
-3,MCA,"What is the purpose of the ""break"" keyword in C?",>To end a loop or switch statement >To skip a loop iteration >To continue executing a loop >None of the above,0
-4,MCA,Which of the following is a valid way to declare a pointer in C?,a) int* x,1
-5,MCA,What is the value of x after the following code snippet?  >int x = 10, x += 5,
-6,Code,Write Code to output “Hello World”,"arg: expected:”Hello World""",
-7,Code,Write Code to output and argument as a string,"arg: Hello expected: “Hello”; arg: 1 expceted: “1""",
+#Question Type (Multi-choice/Text/Code),#Question Number,Question Body,QuestionAnwser/ExpectedResult,Questionpsotibilities(multichoiceonly)/ExpectedResults
+MCA,1,Which of the following is not a valid data type in C?,>int>string>float>char,2
+MCA,2,"What is the output of the following code snippet?  >int x = 5; printf(""%d\n""<comma> x++);<",>6>5>Error>Undefined,1
+MCA,3,"What is the purpose of the ""break"" keyword in C?",>To end a loop or switch statement>To skip a loop iteration>To continue executing a loop>None of the above,0
+MCA,4,Which of the following is a valid way to declare a pointer in C?,>int* x>in *x>int * x>all of the above,4
+MCA,5,What is the value of x after the following code snippet?  >int x = 10;  x += 5,>x=15>x=5>x=50>x=10,1
+Code,6,Write Code to output “Hello World”,> > >,>Hello World >Hello World >Hello World
+Code,7,Write Code to output and argument as a string,>hello>test>argumenttest,>hello>test>argumenttest
+MCA,8,Which of the following is not a valid data type in C?,>int>string>float>char,2
+Code,9,Write a C function that takes in two integers as arguments and returns the larger of the two numbers.,> 8 9 >56 42 >1223 3543 >213 412,>9 >56 >3543 >412
+#Code,10,Write a C function that takes in a string as an argument and prints out each character of the string on a new line.,# no idea how to do thiis sorta one,
+MCA,11,Which of the following is a valid way to declare a constant in C?,>#define CONSTANT 5>const int CONSTANT = 5;>constexpr int CONSTANT = 5;>All of the above,4
+#Code,12,Write C code to swap the values of two variables without using a temporary variable.,# no idea how to do thiis sorta one //TODO setup these questions properly,
+MCA,13,"What is the output of the following code snippet? >Int x = 5; printf(""%d ""<comma> x++); printf(""%d ""<comma> x); printf(""%d""<comma> ++x);<",>5 6 7>8>6 7 8>7 7 7,3
+Code,14,Write C code to take arguments and then output the arguments in reverse,>0 1 2 3 4>4 6 7 8>4 4 0 2 3>hello yes no please,>4 3 2 1>8 7 6 4>3 2 0 4 4>please no yes hello
+MCA,15,"Which of the following is true regarding the ""volatile"" keyword in C?",">The """"volatile"""" keyword is used to declare a variable that can be modified by another thread.>The """"volatile"""" keyword is used to declare a variable that can be modified by an ISR.>The """"volatile"""" keyword is used to declare a variable that can be modified by hardware.>All of the above are true.""",3
+#Code,16,Write C code to remove all duplicates from an array of integers in place (i.e. without creating a new array).,# no idea how to do thiis sorta one //TODO setup these questions properly,
+MCA,17,"What is the output of the following code snippet? #include &lt;stdio.h&gt;<br><br> void swap(int *a<comma> int *b) {<br>   int tmp = *a;<br>   *a = *b;<br>   *b = tmp;<br> }<br><br> int main() {<br>   int x = 5;<br>   int y = 10;<br>   swap(&amp;x<comma> &amp;y);<br>   printf(""%d %d"" <comma> x <comma> y);<br>   return 0;<br> }",>10 5>5 10>0 10>0 5,1
+MCA,18,"Which of the following is true regarding the ""static"" keyword in C?",">The ""static"" keyword can be used to declare global variables that can be accessed only within the file they are declared in.>The ""static"" keyword can be used to declare local variables that retain their value between function calls.>The ""static"" keyword can be used to declare functions that can be accessed only within the file they are declared in.>All of the above are true.",4
+Code,19,Write C code to find the factorial of a given number using recursion.,>4>6>8>10,>24>720>40320>3628800
+Code,21,Write C code to reverse a string in place (i.e. without creating a new string).,>hello world>foo bar>reverse>12345,>dlrow olleh>rab oof>esrever>54321
+Code,23,Write C code to check if a given string is a palindrome.,>racecar>hello world>level>algorithm,>true>false>true>false
+MCA,24,"Which of the following is true regarding the ""const"" keyword in C?",">The ""const"" keyword is used to declare a variable that can be modified.>The ""const"" keyword is used to declare a variable that cannot be modified.>The ""const"" keyword is used to declare a variable that has a lifetime throughout the entire program.>None of the above",2
+Code,25,Write C code to reverse the order of words in a given sentence.,>hello world how are you>programming is fun>test case for this problem>solution for this question,>you are how world hello>fun is programming>this for case test problem>question this for solution
+MCA,26,Which of the following is true regarding the 'for' loop in C?,>The 'for' loop is executed at least once.>The 'for' loop is executed as long as the condition is true.>The 'for' loop is executed forever.>None of the above,2
+Code,27,Write C code to check if a given number is prime or not.,>7>14>31>48,>prime>not prime>prime>not prime
+MCA,28,Which of the following is true regarding the 'sizeof' operator in C?,>The 'sizeof' operator returns the size of the variable in bytes.>The 'sizeof' operator can be used to find the size of any data type.>The 'sizeof' operator can be used to find the number of elements in an array.>All of the above,4
+Code,29,Write C code to concatenate two strings without using the standard library functions.,>hello >world,>helloworld
+MCA,30,Which of the following is true regarding the 'malloc' function in C?,>The 'malloc' function allocates memory on the stack.>The 'malloc' function allocates memory on the heap.>The 'malloc' function is used to free allocated memory.>None of the above,2
+Code,31,Write C code to sort an array of integers in ascending order using the bubble sort algorithm.,>4 3 2 1>10 9 8 7 6 5 4 3 2 1>67 21 13 99 45 68>56 23 15 69 78,>1 2 3 4>1 2 3 4 5 6 7 8 9 10>13 21 45 67 68 99>15 23 56 69 78
+MCA,32,Which of the following is true regarding the 'typedef' keyword in C?,>The 'typedef' keyword is used to create an alias for an existing data type.>The 'typedef' keyword is used to define a new data type.>The 'typedef' keyword is used to create a pointer to an existing data type.>All of the above,1
+Code,33,Write C code to find the maximum element in an array of integers using a pointer.,>3 6 2 1 8 9 7 5 4>2 4 6 8 10>10 9 8 7 6 5 4 3 2 1>45 67 21 13 99 68,>9>10>10>99
+MCA,34,Which of the following is true regarding the 'const' keyword in C?,>The 'const' keyword is used to declare a variable that cannot be modified.>The 'const' keyword is used to declare a function that cannot be modified.>The 'const' keyword is used to declare a variable that can only be modified within a function.>All of the above,1
+Code,35,Write C code to reverse the order of the elements in an array of integers using pointers.,>1 2 3 4 5>6 7 8 9 10,# no idea how to do thiis sorta one //TODO setup these questions properly
+MCA,36,"Which of the following is true regarding the ""malloc"" function in C?",>It is used to allocate memory on the heap>It is used to allocate memory on the stack>It is used to allocate memory for a constant>None of the above,1
+MCA,37,Which of the following is a valid way to declare a two-dimensional array in C?,>int arr[3][3];>int arr[][] = {{1<comma> 2<comma> 3}<comma> {4<comma> 5<comma> 6}<comma> {7<comma> 8<comma> 9}};>int **arr = malloc(3 * sizeof(int*));>Both A and B,4
+MCA,38,Which of the following is the correct way to declare a function that takes a pointer to an integer as an argument in C?,>int *function(int x);>int function(*int x);>int *function(*x);>int function(int *x);,4

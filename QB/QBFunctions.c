@@ -1,14 +1,16 @@
 // USAGE: write_question_and_answer <filepath> <languageused>
 
-#define LINELENGTH 2024
+#define LINELENGTH 500
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 //structure definitons probably going to have to use in diff program
+//TODO optimise for better memory useage
+
 struct multi_choiceq {
   int qnum;
-  char* qtext;
+  char qtext[100];
   char* options[4]; //2d array
   int answer; //1 = a, 2 = b, 3 = c, 4 = d e.t.c. 
 };
@@ -17,8 +19,13 @@ struct programq {
   int qnum;
   char* qtext;
   char* lang; //C99, Java or Python
-  char* inputs[3];    //What is expected to go in
+  char* inputs[3];  //What is expected to go in
   char* outputs[3]; //What is expected to come out 
+};
+
+struct parsedcsv{
+  struct programq programqs[100];
+  struct multi_choiceq multi_choiceqs[100];
 };
 
 const char Usage_msg[] = ("USAGE: ./Write_Questions <file path> <Langauge used>");
@@ -41,44 +48,19 @@ char* getfield(char* line, int num)
     }
     return NULL;
 }
+                                //Either C99, Java or Python
+struct parsedcsv parsingcsv(char *filename,char* Language){
+  FILE *fp;
 
-char* getfieldarrow(char* line, int num)
-{
-    char* tok;
-    for (tok = strtok(line, ">");
-            tok && *tok;
-            tok = strtok(NULL, ">\n"))
-    {
-        if (!--num)
-            return tok;
-    }
-    return NULL;
-}
-
-
-
-//int fileparser(filepath,language) {
-// using as main for now, but shouldn't be starting place for server, better to call it as a function
-int main(int argc, char *argv[]) {
-   FILE *fp;
-   char filename[20]; //track name of file variable
-   char Language[20]; //track Language
-
-   // get filename from server request
-   if (argc != 3 ) {
-    printf("Error too many or too little arguments\n Current argument count: %i",argc); usage();
-   }
-   strcpy(filename, argv[1]);
-   strcpy(Language, argv[2]);
-   fp = fopen(filename, "r"); // open file for reading
+  fp = fopen(filename, "r"); // open file for reading
    if (fp == NULL){
     printf("Internal Error: Unable to open file %s",filename); usage(); 
    }
   
   char line[LINELENGTH];
   
-  struct multi_choiceq multiq[200];
-  struct programq codeq[200000];
+  struct multi_choiceq multiq[100];
+  struct programq codeq[100];
   int MCA_Counter = 0;
   int Code_Counter = 0;
   while (fgets(line, LINELENGTH, fp))
@@ -89,36 +71,56 @@ int main(int argc, char *argv[]) {
         if (tmp[0] == '#'){
           continue;
         }
-
-        printf("Field 2 would be %s\n", getfield(tmp, 2));
-        // NOTE strtok clobbers tmp (idk what this means stolen from stackoverflow code)
-        
-        //This if command segfaults the program IDK why
-        //Removed when fixed
-        if (strcmp(getfield(tmp,2),"MCA")){
-          multiq[MCA_Counter].qnum = atoi(getfield(tmp,1));
-          strcpy(multiq[MCA_Counter].qtext,getfield(tmp,3));
+        char *token = strtok(tmp,",");
+        //TODO optimise for better memory useage
+        if (strcmp(token,"MCA") == 0 ){
+          token = strtok(NULL,",");
+          multiq[MCA_Counter].qnum = atoi(token);
+          token = strtok(NULL,",");
+          strcpy(multiq[MCA_Counter].qtext,token);
+          token = strtok(NULL,",");
+          char *arrowfields = strtok(token,">");
           for(int x = 0; x < 4; x++){
-            multiq[MCA_Counter].options[x] = getfieldarrow(getfield(tmp,4),x);
+            multiq[MCA_Counter].options[x] = (char*)calloc(strlen(arrowfields),sizeof(char));
+              strcpy(multiq[MCA_Counter].options[x],arrowfields);
+            arrowfields = strtok(NULL,">");
           }
-          multiq[MCA_Counter].answer = atoi(getfield(tmp,5)); 
-          printf("Parsed Line \n, Number: %i, Text:, %s, and Answer of:%i\n",multiq[MCA_Counter].qnum,multiq[MCA_Counter].qtext,multiq[MCA_Counter].answer);
-          MCA_Counter++;
-        }
-        else if (strcmp(getfield(tmp,2),"Code")){
-          codeq[Code_Counter].qnum = atoi(getfield(tmp,1));
-          strcpy(codeq[Code_Counter].lang,Language);
-          strcpy(codeq[Code_Counter].qtext,getfield(tmp,3));
-          for (int x = 0; x < 3; x ++){
-            codeq[Code_Counter].inputs[x] = getfieldarrow(getfield(tmp,4),x);
-            codeq[Code_Counter].outputs[x] = getfieldarrow(getfield(tmp,5),x);
-        }
+          multiq[MCA_Counter].answer = atoi(getfield(line,5)); 
+          //printf("Parsed Line \nNumber: %i, Text:, %s, and Answer is number %i (%s) \n",multiq[MCA_Counter].qnum,multiq[MCA_Counter].qtext,multiq[MCA_Counter].answer,
+          //       multiq[MCA_Counter].options[multiq[MCA_Counter].answer]);
+          MCA_Counter = MCA_Counter + 1;
       }
-      free(tmp);
+        else if (strcmp(token,"Code")==0){
+          token = strtok(NULL,",");
+          codeq[Code_Counter].qnum = atoi(token);
+          token = strtok(NULL,",");
+          codeq[Code_Counter].lang = (char*)calloc(strlen(Language),sizeof(char));
+            memcpy(codeq[Code_Counter].lang,Language,strlen(Language));
+          codeq[Code_Counter].qtext = (char*)calloc(strlen(token),sizeof(char));
+            strcpy(codeq[Code_Counter].qtext,token);
+          token = strtok(NULL,",");
+          for (int x = 0; x < 3; x ++){
+            char *argfields = strtok(token,">");  
+            codeq[Code_Counter].inputs[x] = (char*)calloc(strlen(argfields),sizeof(char));
+              strcpy(codeq[Code_Counter].inputs[x],argfields);
+              argfields = strtok(NULL,",");}
+          for (int x = 0; x < 3; x++){
+            char *argfields = strtok(token,">"); 
+            codeq[Code_Counter].outputs[x] = (char*)calloc(strlen(argfields),sizeof(char));
+              strcpy(codeq[Code_Counter].outputs[x],argfields);
+          }
+          Code_Counter++;
+        }
+       free(tmp);
     }
-}
-
-
+    printf("Parsisng successs!");
+    struct parsedcsv returnstruct;
+    memcpy(returnstruct.programqs,codeq,sizeof(codeq));
+    memcpy(returnstruct.multi_choiceqs,multiq,sizeof(multiq));
+    return returnstruct;
+} 
+  
+  
 // function to write a question and its answer to a file
 void write_question_and_answer(char* file_path, char* question, char* answer){
     FILE* file = fopen(file_path, "a");
