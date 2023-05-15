@@ -6,6 +6,8 @@
 #include <string.h>
 
 //structure definitons probably going to have to use in diff program
+//TODO optimise for better memory useage
+
 struct multi_choiceq {
   int qnum;
   char qtext[100];
@@ -76,11 +78,8 @@ int main(int argc, char *argv[]) {
         if (tmp[0] == '#'){
           continue;
         }
-
-        // NOTE strtok clobbers tmp (idk what this means stolen from stackoverflow code)
         char *token = strtok(tmp,",");
-        //This if command segfaults the program IDK why
-        //Removed when fixed
+        //TODO optimise for better memory useage
         if (strcmp(token,"MCA") == 0 ){
           token = strtok(NULL,",");
           multiq[MCA_Counter].qnum = atoi(token);
