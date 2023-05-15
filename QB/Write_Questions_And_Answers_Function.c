@@ -1,6 +1,6 @@
 // USAGE: write_question_and_answer <filepath> <languageused>
 
-#define MAXLINELENGTH 1024
+#define LINELENGTH 2024
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,8 +17,8 @@ struct programq {
   int qnum;
   char* qtext;
   char* lang; //C99, Java or Python
-  char* choseninputs[3];    //What is expected to go in
-  char* expectedoutputs[3]; //What is expected to come out 
+  char* inputs[3];    //What is expected to go in
+  char* outputs[3]; //What is expected to come out 
 };
 
 const char Usage_msg[] = ("USAGE: ./Write_Questions <file path> <Langauge used>");
@@ -57,7 +57,7 @@ char* getfieldarrow(char* line, int num)
 
 
 
-//int fileparser(filepath,language) { 
+//int fileparser(filepath,language) {
 // using as main for now, but shouldn't be starting place for server, better to call it as a function
 int main(int argc, char *argv[]) {
    FILE *fp;
@@ -75,14 +75,13 @@ int main(int argc, char *argv[]) {
     printf("Internal Error: Unable to open file %s",filename); usage(); 
    }
   
-  char line[MAXLINELENGTH];
+  char line[LINELENGTH];
   
   struct multi_choiceq multiq[200];
-  struct programq codeq[200];
+  struct programq codeq[200000];
   int MCA_Counter = 0;
   int Code_Counter = 0;
-
-  while (fgets(line, 1024, fp))
+  while (fgets(line, LINELENGTH, fp))
     {
         char* tmp = strdup(line);
 
@@ -92,24 +91,30 @@ int main(int argc, char *argv[]) {
         }
 
         printf("Field 2 would be %s\n", getfield(tmp, 2));
-        // NOTE strtok clobbers tmp
+        // NOTE strtok clobbers tmp (idk what this means stolen from stackoverflow code)
         
         //This if command segfaults the program IDK why
-      //Removed when fixed
+        //Removed when fixed
         if (strcmp(getfield(tmp,2),"MCA")){
           multiq[MCA_Counter].qnum = atoi(getfield(tmp,1));
-          multiq[MCA_Counter].qtext = getfield(tmp,3);
+          strcpy(multiq[MCA_Counter].qtext,getfield(tmp,3));
           for(int x = 0; x < 4; x++){
             multiq[MCA_Counter].options[x] = getfieldarrow(getfield(tmp,4),x);
           }
-          multiq[MCA_Counter].answer = atoi(getfield(tmp,5));
-        
+          multiq[MCA_Counter].answer = atoi(getfield(tmp,5)); 
           printf("Parsed Line \n, Number: %i, Text:, %s, and Answer of:%i\n",multiq[MCA_Counter].qnum,multiq[MCA_Counter].qtext,multiq[MCA_Counter].answer);
-
-
           MCA_Counter++;
         }
-        free(tmp);
+        else if (strcmp(getfield(tmp,2),"Code")){
+          codeq[Code_Counter].qnum = atoi(getfield(tmp,1));
+          strcpy(codeq[Code_Counter].lang,Language);
+          strcpy(codeq[Code_Counter].qtext,getfield(tmp,3));
+          for (int x = 0; x < 3; x ++){
+            codeq[Code_Counter].inputs[x] = getfieldarrow(getfield(tmp,4),x);
+            codeq[Code_Counter].outputs[x] = getfieldarrow(getfield(tmp,5),x);
+        }
+      }
+      free(tmp);
     }
 }
 
