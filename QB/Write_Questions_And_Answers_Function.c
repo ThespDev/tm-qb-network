@@ -1,6 +1,6 @@
 // USAGE: write_question_and_answer <filepath> <languageused>
 
-#define LINELENGTH 300
+#define LINELENGTH 500
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +9,7 @@
 struct multi_choiceq {
   int qnum;
   char qtext[100];
-  char options[4][30]; //2d array
+  char* options[4]; //2d array
   int answer; //1 = a, 2 = b, 3 = c, 4 = d e.t.c. 
 };
 
@@ -42,20 +42,6 @@ char* getfield(char* line, int num)
     return NULL;
 }
 
-char* getfieldarrow(char* line, int num)
-{
-    char* tok;
-    for (tok = strtok(line, ">");
-            tok && *tok;
-            tok = strtok(NULL, ">\n"))
-    {
-        if (!--num)
-            return tok;
-    }
-    return NULL;
-}
-
-
 
 //int fileparser(filepath,language) {
 // using as main for now, but shouldn't be starting place for server, better to call it as a function
@@ -78,7 +64,7 @@ int main(int argc, char *argv[]) {
   
   char line[LINELENGTH];
   
-  struct multi_choiceq multiq[200];
+  struct multi_choiceq multiq[100];
   struct programq codeq[200];
   int MCA_Counter = 0;
   int Code_Counter = 0;
@@ -95,19 +81,21 @@ int main(int argc, char *argv[]) {
         char *token = strtok(tmp,",");
         //This if command segfaults the program IDK why
         //Removed when fixed
-        if ( strcmp(token,"MCA") == 0 ){
+        if (strcmp(token,"MCA") == 0 ){
           token = strtok(NULL,",");
           multiq[MCA_Counter].qnum = atoi(token);
           token = strtok(NULL,",");
           strcpy(multiq[MCA_Counter].qtext,token);
           token = strtok(NULL,",");
+          char *arrowfields = strtok(token,">");
           for(int x = 0; x < 4; x++){
-            char *arrowfields = strtok(token,">");
-            strcpy(multiq[MCA_Counter].options[x],arrowfields);
-            token = strtok(NULL,",");
+            multiq[MCA_Counter].options[x] = (char*)calloc(strlen(arrowfields),sizeof(char));
+              strcpy(multiq[MCA_Counter].options[x],arrowfields);
+            arrowfields = strtok(NULL,">");
           }
           multiq[MCA_Counter].answer = atoi(getfield(line,5)); 
-          printf("Parsed Line \nNumber: %i, Text:, %s, and Answer is number %i (%s)\n",multiq[MCA_Counter].qnum,multiq[MCA_Counter].qtext,multiq[MCA_Counter].answer,multiq[MCA_Counter].options[multiq[MCA_Counter].answer]);
+          //printf("Parsed Line \nNumber: %i, Text:, %s, and Answer is number %i (%s) \n",multiq[MCA_Counter].qnum,multiq[MCA_Counter].qtext,multiq[MCA_Counter].answer,
+          //       multiq[MCA_Counter].options[multiq[MCA_Counter].answer]);
           MCA_Counter = MCA_Counter + 1;
       }
         else if (strcmp(token,"Code")==0){
@@ -123,11 +111,18 @@ int main(int argc, char *argv[]) {
             char *argfields = strtok(token,">");  
             codeq[Code_Counter].inputs[x] = (char*)calloc(strlen(argfields),sizeof(char));
               strcpy(codeq[Code_Counter].inputs[x],argfields);
-            argfields = strtok(NULL,",");
+              argfields = strtok(NULL,",");}
+          for (int x = 0; x < 3; x++){
+            char *argfields = strtok(token,">"); 
+            codeq[Code_Counter].outputs[x] = (char*)calloc(strlen(argfields),sizeof(char));
+              strcpy(codeq[Code_Counter].outputs[x],argfields);
           }
+          Code_Counter++;
         }
        free(tmp);
     }
+    printf("Parssisng successs!");
+  
 } 
   
   
