@@ -25,6 +25,26 @@ qb_socket.listen()
 qb_list = []
 connections = []
 
+def create_html(request):
+    
+    question = request[1]
+    type = request[2]
+    html = f"<h2>{question}<h2>"
+    if type == "c":
+        html += '<form action="/codeanswer" method="post">'
+        html += '<p> Please put the answer below:</p>'
+        html += '<input type="text">'
+        html += '</form>'
+
+    elif type == "m":
+        index = 1
+        html += '<form action="/mcanswer" method="post">'
+        for i in range(3,7):
+            html += f'<input type="radio" name="answer" value="{request[i]}"> {request[i]}<br>'
+            index += 1
+        html += '</form>'
+        html += '<input type="submit" value="Submit">'
+    return html
 def find_cookie(headers):
     cookie = None
     for header in headers:
@@ -128,6 +148,8 @@ def service_connection(sock, mask,db):
         if rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie is None:
             serve_standard = True
             print("serving standard")
+        elif rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie:
+            custom_webpage = True
         elif rq_type[0:3] == "GET" and rq_type[4:10] == "/login":
             creds = (rq_type.split(' ')[1])
             user = creds.split('=')[1].split('&')[0]
@@ -168,20 +190,10 @@ def service_connection(sock, mask,db):
                 print("user cookie is", user_cookie)
                 header = f'HTTP/1.0 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
                 response = header + "<h1>CITS3002 Project</h1>"
-
-                with open("questions.json") as json_file:
-                    questions_data = json.load(json_file)
-                questions = questions_data["questions"]
-                for question in questions:
-                    question_text = question["text"]
-                    response += f"<h2>{question_text}<h2>"
-                    options = questions["options"]
-                    for option in options:
-                        response += f'<input type="radio" name="question-{question["id"]}" value="{option}"> {option}<br>'
-            #response = custom webpage function which uses userstate
-            #response = 'HTTP/1.0 200 OK\n\n' + multiHTML
-                send_questions(sock, response)
+                sock.send(response.encode())
                 print("SENDING HTML \n", response)
+            html = create_html(["Q_CONTENT","Question?","m","apples","baananas","cake","pie"])
+            send_questions(sock,html)
 
         #if verbose: print(f'Client disconneccted: {sock.getpeername()}')
         #sel.unregister(sock)
@@ -190,14 +202,6 @@ def service_connection(sock, mask,db):
         if verbose: print(f"Closing connection to {sock.getpeername()}")
         sel.unregister(sock)
         sock.close()
-
-    if custom_webpage: # Test case send questions as html content once user login
-        if first_login:
-            header = f'HTTP/1.0 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
-            response = header + "<h1>First login success!</h1>"
-            send_questions(sock, response)
-        # other cases...
-
 
 sel = selectors.DefaultSelector()
 sel.register(server_socket, selectors.EVENT_WRITE | selectors.EVENT_READ, data=accept)
