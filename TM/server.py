@@ -80,7 +80,6 @@ def service_qb(sock,mask,db):
 def send_questions(sock, html_content):
     response = 'HTTP/1.0 200 OK\nContent-Type: text/html\n\n' + html_content
     sock.send(response.encode())
-    sock.close()
 
 def service_connection(sock, mask,db):
     recv_data = None
