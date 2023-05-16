@@ -33,17 +33,19 @@ def create_html(request):
     if type == "c":
         html += '<form action="/codeanswer" method="post">'
         html += '<p> Please put the answer below:</p>'
-        html += '<input type="text">'
+        html += '<input type="text" id="code" name="code" style="height:250px;width:100%">'
+        html += '<input type="submit" value="Submit">'
         html += '</form>'
 
     elif type == "m":
         index = 1
         html += '<form action="/mcanswer" method="post">'
         for i in range(3,7):
+            #Check if response needs to be in number or text for mcq
             html += f'<input type="radio" name="answer" value="{request[i]}"> {request[i]}<br>'
             index += 1
-        html += '</form>'
         html += '<input type="submit" value="Submit">'
+        html += '</form>'
     return html
 def find_cookie(headers):
     cookie = None
@@ -111,7 +113,7 @@ def service_qb(sock,mask,db):
         
 
 def send_questions(sock, html_content):
-    response = 'HTTP/1.0 200 OK\nContent-Type: text/html\n\n' + html_content
+    response = 'HTTP/1.1 200 OK\n\n' + html_content
     sock.send(response.encode())
 
 def service_connection(sock, mask,db):
@@ -171,7 +173,7 @@ def service_connection(sock, mask,db):
             if verbose: print("login attempted")
     if not data:
         #close connection
-        if verbose: print(f'Client disconneccted: {sock.getpeername()}')
+        if verbose: print(f'Client disconected (no data): {sock.getpeername()}')
         sel.unregister(sock)
         sock.close()
         return           
@@ -179,29 +181,25 @@ def service_connection(sock, mask,db):
     if mask & selectors.EVENT_WRITE:
         #if test: response = "hello there"; sock.send(response.encode())
         if serve_standard:
-            response = 'HTTP/1.0 200 OK \n\n' + loginHTML    
+            response = 'HTTP/1.1 200 OK \n\n' + loginHTML    
             print("sent response")
             sock.send(response.encode())
         elif incorrectlogin:
-            response = 'HTTP/1.0 200 OK\n\n' + loginHTML    
+            response = 'HTTP/1.1 200 OK\n\n' + loginHTML    
             sock.send(response.encode())
         elif custom_webpage:
             if first_login:
                 print("user cookie is", user_cookie)
-                header = f'HTTP/1.0 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
+                header = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
                 response = header + "<h1>CITS3002 Project</h1>"
                 sock.send(response.encode())
                 print("SENDING HTML \n", response)
-            html = create_html(["Q_CONTENT","Question?","m","apples","baananas","cake","pie"])
+            html = create_html(["Q_CONTENT","Question?","c","apples","baananas","cake","pie"])
             send_questions(sock,html)
-
+            
         #if verbose: print(f'Client disconneccted: {sock.getpeername()}')
         #sel.unregister(sock)
         #sock.close()
-    else:
-        if verbose: print(f"Closing connection to {sock.getpeername()}")
-        sel.unregister(sock)
-        sock.close()
 
 sel = selectors.DefaultSelector()
 sel.register(server_socket, selectors.EVENT_WRITE | selectors.EVENT_READ, data=accept)
