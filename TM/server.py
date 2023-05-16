@@ -22,6 +22,9 @@ qb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 qb_socket.bind((host, QB_PORT))
 qb_socket.listen() 
 
+qb_list = []
+connections = []
+
 def find_cookie(headers):
     cookie = None
     for header in headers:
@@ -72,17 +75,27 @@ def accept(sock,mask,db):
     if sock == server_socket:
         sel.register(conn, events, data=service_connection)
     elif sock == qb_socket:
+        qb_list.append(sock)
         sel.register(conn, events, data=service_qb)
 
 def service_qb(sock,mask,db):
-    pass
+    datab = []
+    if mask & selectors.EVENT_READ:
+        while True:
+            block = sock.recv(1024)
+            if len(block) == 0:
+                break
+            datab.append(block)
+        data = b''.join(datab)
+        print(data)
+        
 
 def send_questions(sock, html_content):
     response = 'HTTP/1.0 200 OK\nContent-Type: text/html\n\n' + html_content
     sock.send(response.encode())
 
 def service_connection(sock, mask,db):
-    recv_data = None
+    data = None
     serve_standard = False
     incorrectlogin = False
     custom_webpage = False
@@ -93,10 +106,18 @@ def service_connection(sock, mask,db):
     print("Event Write",(mask & selectors.EVENT_WRITE))
 
     if mask & selectors.EVENT_READ:
-
-        recv_data = sock.recv(1024)
-        print("RECEIVED DATA \n",recv_data.decode())
-        response = recv_data.decode().split('\n')
+        datab = []
+        while True:
+            try:
+                block = sock.recv(1024)
+                if len(block) == 0:
+                    break
+                datab.append(block)
+            except BlockingIOError:
+                break
+        data = b''.join(datab)
+        print("RECEIVED DATA \n",data.decode())
+        response = data.decode().split('\n')
         request_cookie = find_cookie(response)
         rq_type = response[0]
         if verbose:
@@ -106,6 +127,7 @@ def service_connection(sock, mask,db):
                 print("NO COOKIE :c")
         if rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie is None:
             serve_standard = True
+            print("serving standard")
         elif rq_type[0:3] == "GET" and rq_type[4:10] == "/login":
             creds = (rq_type.split(' ')[1])
             user = creds.split('=')[1].split('&')[0]
@@ -125,7 +147,7 @@ def service_connection(sock, mask,db):
 
             if verbose: print("USERNAME AND PASSWORD\n" + user + " " + password)
             if verbose: print("login attempted")
-    if not recv_data:
+    if not data:
         #close connection
         if verbose: print(f'Client disconneccted: {sock.getpeername()}')
         sel.unregister(sock)
@@ -136,6 +158,7 @@ def service_connection(sock, mask,db):
         #if test: response = "hello there"; sock.send(response.encode())
         if serve_standard:
             response = 'HTTP/1.0 200 OK \n\n' + loginHTML    
+            print("sent response")
             sock.send(response.encode())
         elif incorrectlogin:
             response = 'HTTP/1.0 200 OK\n\n' + loginHTML    
@@ -149,9 +172,9 @@ def service_connection(sock, mask,db):
             #response = 'HTTP/1.0 200 OK\n\n' + multiHTML
                 print("SENDING HTML \n", response)
                 sock.send(response.encode())
-        if verbose: print(f'Client disconneccted: {sock.getpeername()}')
-        sel.unregister(sock)
-        sock.close()
+        #if verbose: print(f'Client disconneccted: {sock.getpeername()}')
+        #sel.unregister(sock)
+        #sock.close()
     else:
         if verbose: print(f"Closing connection to {sock.getpeername()}")
         sel.unregister(sock)
