@@ -177,7 +177,7 @@ def service_connection(sock, mask,db):
                     response += f"<h2>{question_text}<h2>"
                     options = questions["options"]
                     for option in options:
-                        response += f'<input type="radio" name="question-{question["id"]}"> {option}<br>'
+                        response += f'<input type="radio" name="question-{question["id"]}" value="{option}"> {option}<br>'
             #response = custom webpage function which uses userstate
             #response = 'HTTP/1.0 200 OK\n\n' + multiHTML
                 send_questions(sock, response)
