@@ -1,85 +1,102 @@
-#include <stdio.h> // standard input and output library
-#include <stdlib.h> //standard library
-#include <unistd.h> // standard symbolic constants and types
-#include <string.h> // string manipulation functions
-#include <sys/socket.h> // socket libary
-#include <arpa/inet.h> // definition for internet operations
 
-#define MAX 80 // maximum chararters in a message
-#define PORT 9002 //port number to connect to
-#define SA struct sockaddr // generic socket address structure
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
 
-void func(int sockfd) //function to handle connection
-{
-    char buff[MAX]; //buffer to store messages
-    int n;
-    int q; // number of questions
+#define BUFFER_SIZE 1024
+#define SERVER_IP "127.0.0.1"  // Replace with the actual server IP
+#define SERVER_PORT 9002       // Replace with the actual server port
 
-    for (;;) { // loop until user enters "exit"
-        bzero(buff, sizeof(buff)); // zero out memory
-        printf("Enter the string : ");
-        n = 0;
-        while ((buff[n++] = getchar()) != '\n') // read message from user
-            ;
-        write(sockfd, buff, sizeof(buff)); // send message to server
-        bzero(buff, sizeof(buff)); // zero out memory
-        read(sockfd, buff, sizeof(buff)); // recieve message from server
-        printf("From Test Manager : %s", buff); // print the recieved message
-        if ((strncmp(buff, "exit", 4)) == 0) { // check if user wants to exit
-            printf("Question Bank Exit...\n");
-            break;
-        }
-    }
-}
- 
-int main(int argc, char *argv[])
-{
-
-    javamode = false;
-    pythonmode = false;
-    cmode = false;
-    char* mode = argv[2];
-    if strcmp(mode,"java"):
-        javamode = true;
-    else if strcmp(mode,"c"):
-        cmode = true;
-    else if strcmp(mode,"python"):
-        pythonmode = true;
-
-    if (argc == RAND_Q\n)
-        //The Client needs to get QBFuntions to retrieve random question
-
-
-
-
-    int sockfd, connfd; // socket file descriptors for client and server
-    struct sockaddr_in servaddr, cli; // server and client socket address structure
- 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0); // create a socket
-    if (sockfd == -1) { // check if socket creation failed
-        printf("Socket creation failed...\n");
-        exit(0);
-    }
-    else
-        printf("Socket has successfully been created...\n"); // print success message
-    bzero(&servaddr, sizeof(servaddr)); // zero out memory for server address structure
- 
-    // Assign IP, PORT
-    servaddr.sin_family = AF_INET; // set address family to internet
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // set IP address to localhost
-    servaddr.sin_port = htons(PORT); // set port number to PORT
- 
-    // Connect the client socket to server socket
-    if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr))
-        != 0) {
-        printf("Failed to connect to Test Manager...\n");
-        exit(0);
-    }
-    else
-        printf("Successfully connected to Test Manager..\n"); // print success message
- 
-    func(sockfd); // call function to handle connection
- 
-    close(sockfd); // close the socket
+void read_request(int socket, char* buffer) {
+    recv(socket, buffer, BUFFER_SIZE, 0);
+    buffer[strcspn(buffer, "\n")] = '\0';  // Remove newline character
 }
 
+void send_response(int socket, const char* response) {
+    send(socket, response, strlen(response), 0);
+}
+
+int main(int argc, char* argv[]) {
+    int socket_desc;
+    struct sockaddr_in server_addr;
+    char server_ip[] = SERVER_IP;
+
+    // Check the language mode from command line arguments
+    char* mode = argv[1];
+    int javamode = 0, pythonmode = 0, cmode = 0;
+
+    if (strcmp(mode, "java") == 0)
+        javamode = 1;
+    else if (strcmp(mode, "c") == 0)
+        cmode = 1;
+    else if (strcmp(mode, "python") == 0)
+        pythonmode = 1;
+    else {
+        printf("Invalid language mode\n");
+        return 1;
+    }
+
+    // Create socket
+    socket_desc = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_desc == -1) {
+        perror("Failed to create socket");
+        return 1;
+    }
+
+    // Configure server address
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(SERVER_PORT);
+    if (inet_pton(AF_INET, server_ip, &(server_addr.sin_addr)) <= 0) {
+        perror("Invalid address/ Address not supported");
+        return 1;
+    }
+
+    // Connect to the server
+    if (connect(socket_desc, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        perror("Connection failed");
+        return 1;
+    }
+
+    // QB receives the language mode from TM
+    char language_mode[BUFFER_SIZE];
+    read_request(socket_desc, language_mode);
+    printf("Language mode received: %s\n", language_mode);
+
+    // QB receives a request for random questions from TM
+    char request_type[BUFFER_SIZE];
+    read_request(socket_desc, request_type);
+    printf("Request type received: %s\n", request_type);
+
+    // QB sends a response with random question numbers to TM
+    send_response(socket_desc, "RAND_Q\n");
+    send_response(socket_desc, "[1, 2, 3, 4]\n");
+
+    // QB receives a request for question content from TM
+    read_request(socket_desc, request_type);
+    printf("Request type received: %s\n", request_type);
+
+    // QB sends a response with question content to TM
+    send_response(socket_desc, "Q_CONTENT\n");
+    send_response(socket_desc, "Question content goes here\n");
+
+    if (javamode)
+        send_response(socket_desc, "m\njava\nc\npython\nhaskell\n");
+    else if (cmode)
+        send_response(socket_desc, "c\n");
+    else if (pythonmode)
+        send_response(socket_desc, "m\n");
+
+    // QB receives a request for marking the response from TM
+    read_request(socket_desc, request_type);
+    printf("Request type received: %s\n", request_type);
+
+    // QB sends a response with marking results to TM
+    send_response(socket_desc, "MARKING\n");
+    send_response(socket_desc, "correct\n");
+
+    // Close the socket
+    close(socket_desc);
+
+    return 0;
