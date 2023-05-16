@@ -77,6 +77,10 @@ def accept(sock,mask,db):
 def service_qb(sock,mask,db):
     pass
 
+def send_questions(sock, html_content):
+    response = 'HTTP/1.0 200 OK\nContent-Type: text/html\n\n' + html_content
+    sock.send(response.encode())
+    sock.close()
 
 def service_connection(sock, mask,db):
     recv_data = None
@@ -153,6 +157,14 @@ def service_connection(sock, mask,db):
         if verbose: print(f"Closing connection to {sock.getpeername()}")
         sel.unregister(sock)
         sock.close()
+
+    if custom_webpage:
+        if first_login:
+            header = f'HTTP/1.0 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
+            response = header + "<h1>First login success!</h1>"
+            send_questions(sock, response)
+        # other cases...
+
 
 sel = selectors.DefaultSelector()
 sel.register(server_socket, selectors.EVENT_WRITE | selectors.EVENT_READ, data=accept)
