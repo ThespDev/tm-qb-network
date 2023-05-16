@@ -158,7 +158,7 @@ def service_connection(sock, mask,db):
         sel.unregister(sock)
         sock.close()
 
-    if custom_webpage:
+    if custom_webpage: # Test case send questions as html content once user login
         if first_login:
             header = f'HTTP/1.0 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
             response = header + "<h1>First login success!</h1>"
