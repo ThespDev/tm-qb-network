@@ -166,12 +166,23 @@ def service_connection(sock, mask,db):
         elif custom_webpage:
             if first_login:
                 print("user cookie is", user_cookie)
-                header = f'HTTP/1.0 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n' 
-                response = header + "<h1>First login success!</h1>"
+                header = f'HTTP/1.0 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
+                response = header + "<h1>CITS3002 Project</h1>"
+
+                with open("questions.json") as json_file:
+                    questions_data = json.load(json_file)
+                questions = questions_data["questions"]
+                for question in questions:
+                    question_text = question["text"]
+                    response += f"<h2>{question_text}<h2>"
+                    options = questions["options"]
+                    for option in options:
+                        response += f'<input type="radio" name="question-{question["id"]}"> {option}<br>'
             #response = custom webpage function which uses userstate
             #response = 'HTTP/1.0 200 OK\n\n' + multiHTML
+                send_questions(sock, response)
                 print("SENDING HTML \n", response)
-                sock.send(response.encode())
+
         #if verbose: print(f'Client disconneccted: {sock.getpeername()}')
         #sel.unregister(sock)
         #sock.close()
