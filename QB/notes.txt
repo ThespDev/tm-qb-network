@@ -5,4 +5,5 @@ could be smart to add a \n after every ; within the boundaries of ">"
 
 *Added Piping.c based on my understanding on what Schmil wanted for the QBFunctions.c file. -Ryza
 
-*I've updated the QBStreamClient.c file to match logic required from TM according to Pablo. Maybe if we can edit/sync with your parsing funtion when your ready- Ryza
+*I've updated the QBStreamClient.c file to match logic required from TM according to Pablo.
+Maybe if we can edit/sync with your parsing funtion when your ready- Ryza
