@@ -23,16 +23,15 @@ qb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 qb_socket.bind((host, QB_PORT))
 qb_socket.listen() 
 
-qb_list = []
-connections = []
-requests_list = []
+qb_requests = []
 
 
 def create_html(request):
     
     question = request[1]
     type = request[2]
-    html = f"<h2>{question}<h2>"
+    html = "<body>"
+    html += f"<h2>{question}<h2>"
     if type == "c":
         html += '<form action="/codeanswer" method="post">'
         html += '<p> Please put the answer below:</p>'
@@ -62,7 +61,9 @@ def create_html(request):
             index += 1
         html += '<input type="submit" value="Submit">'
         html += '</form>'
+    html += "</body>"
     return html
+
 #used for cookies, content ect
 def find_header(headers,value):
     header_val = None
@@ -115,7 +116,6 @@ def accept(sock,mask,db):
     if sock == server_socket:
         sel.register(conn, events, data=service_connection)
     elif sock == qb_socket:
-        qb_list.append(sock)
         sel.register(conn, events, data=service_qb)
 
 def service_qb(sock,mask,db):
@@ -190,18 +190,25 @@ def service_connection(sock, mask,db):
                 custom_webpage=True
                 if user_cookie not in db:
                     register_user(user,user_cookie,db)
+                    
                     pass
             else:
                 incorrectlogin = True
         elif rq_type[0:4] == "POST" and rq_type[5:16] == "/codeanswer":
-            #temp QB test
+            
+            question_num = db[user_cookie]["current_q"]
+            q_index = db[user_cookie]["questions"].index(question_num)
+            db[user_cookie]["attempts"][q_index] += 1 
+            if db[user_cookie]["attempts"][q_index] > 3:
+                pass
             code = find_header(response,"code")
             if code == None:
                 code = 'failure'
             print("CODE =\n")
             print(code)
             decode = unquote(code)
-            requests_list.append(f"MARKING_Q\nc\n{repr(decode)}")
+            question_num = db[user_cookie]
+            request = f"MARKING\n"
 
     if not data:
         #close connection
@@ -214,10 +221,9 @@ def service_connection(sock, mask,db):
         #if test: response = "hello there"; sock.send(response.encode())
         if serve_standard:
             response = 'HTTP/1.1 200 OK \n\n' + loginHTML    
-            #print("sent response")
             sock.send(response.encode())
         elif incorrectlogin:
-            response = 'HTTP/1.1 200 OK\n\n' + loginHTML    
+            response = 'HTTP/1.1 200 OK\n\n' + loginHTML + "<h1>INCORRECT LOGIN</h1>"   
             sock.send(response.encode())
         elif custom_webpage:
             #if first_login:
