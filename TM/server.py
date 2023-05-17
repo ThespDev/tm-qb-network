@@ -136,12 +136,13 @@ def service_qb(sock,mask,db):
         print(data)
         sock.send("test".encode())
     if mask & selectors.EVENT_WRITE:
-        if requests_list:
-            sock.send(requests_list.pop(0).encode())
+        if qb_requests:
+            sock.send(qb_requests.pop(0)[1])
         
 
-def send_questions(sock, html_content,cookie):
-    response = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={cookie}\n\n' + html_content
+def send_questions(sock, html_content,cookie,give_cookie):
+    if give_cookie: response = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={cookie}\n\n' + html_content
+    else: response = 'HTTP/1.1 200 OK\n\n' + html_content
     sock.send(response.encode())
 
 def service_connection(sock, mask,db):
@@ -149,7 +150,9 @@ def service_connection(sock, mask,db):
     serve_standard = False
     incorrectlogin = False
     custom_webpage = False
+    too_many_attempts = False
     #first_login = False
+    give_cookie = False
     #connection_type = sock.getsockname()[1]
     print("Event Read", (mask & selectors.EVENT_READ))
     print("Event Write",(mask & selectors.EVENT_WRITE))
@@ -172,9 +175,9 @@ def service_connection(sock, mask,db):
         if verbose:
             if request_cookie is not None:
                 #print("COOKIE = " + request_cookie)
-                user_cookie = request_cookie
+                user_cookie = request_cookie.split("=")[1][:-1]
             else:
-                pass
+                give_cookie = True
                 #print("NO COOKIE :c")
         if rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie is None:
             serve_standard = True
@@ -190,26 +193,34 @@ def service_connection(sock, mask,db):
                 custom_webpage=True
                 if user_cookie not in db:
                     register_user(user,user_cookie,db)
-                    
                     pass
             else:
                 incorrectlogin = True
         elif rq_type[0:4] == "POST" and rq_type[5:16] == "/codeanswer":
-            
-            question_num = db[user_cookie]["current_q"]
-            q_index = db[user_cookie]["questions"].index(question_num)
-            db[user_cookie]["attempts"][q_index] += 1 
-            if db[user_cookie]["attempts"][q_index] > 3:
-                pass
-            code = find_header(response,"code")
-            if code == None:
-                code = 'failure'
-            print("CODE =\n")
-            print(code)
-            decode = unquote(code)
-            question_num = db[user_cookie]
-            request = f"MARKING\n"
-
+            print(user_cookie)
+            for key in db['users'].keys():
+                print("KEY ",key)
+                print("COOKIE: ",user_cookie)
+                print("EQUALS ",key==user_cookie)
+            question_num = db['users'][user_cookie]["current_q"]
+            #q_index = db['users'][user_cookie]["questions"].index(question_num)
+            q_index = 2
+            db['users'][user_cookie]["attempt_num"][q_index] += 1 
+            if db['users'][user_cookie]["attempt_num"][q_index] > 3:
+                too_many_attempts = True
+            if not too_many_attempts:
+                code = find_header(response,"code")
+                if code == None:
+                    code = 'failure'
+                #print("CODE =\n")
+                #print(code)
+                decode = unquote(code)
+                question_num = db['users'][user_cookie]
+                request = f"MARKING\n{question_num}\nMCA\n{decode}"
+                sock.send("HTTP/1.1 200 OK\n\n<h1>Marking result...</h1>".encode())
+                qb_requests.append((sock,request))
+                print("returning please don't DC")
+                return
     if not data:
         #close connection
         if verbose: print(f'Client disconected (no data): {sock.getpeername()}\n'); print("-----------------------------------------------\n")
@@ -232,9 +243,10 @@ def service_connection(sock, mask,db):
             #    response = header + "<h1>CITS3002 Project</h1>"
             #    sock.send(response.encode())
             #    print("SENDING HTML \n", response)
-
+            if too_many_attempts:
+                footer = "<h1>TOO MANY ATTEMPTS</h1>"
             html = create_html(["Q_CONTENT","Question?","c","apples","baananas","cake","pie"])
-            send_questions(sock,html,user_cookie)
+            send_questions(sock,html,user_cookie,give_cookie)
 
 sel = selectors.DefaultSelector()
 sel.register(server_socket, selectors.EVENT_WRITE | selectors.EVENT_READ, data=accept)
