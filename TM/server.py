@@ -25,6 +25,7 @@ qb_socket.listen()
 
 qb_list = []
 connections = []
+requests_list = []
 
 
 def create_html(request):
@@ -67,6 +68,7 @@ def find_header(headers,value):
     header_val = None
     for header in headers:
         title = header.split(": ")
+        if value == "code": title=header.split('=')
         if title[0] == value:
             header_val = title[1]
     return header_val
@@ -133,6 +135,9 @@ def service_qb(sock,mask,db):
         data = b''.join(datab)
         print(data)
         sock.send("test".encode())
+    if mask & selectors.EVENT_WRITE:
+        if requests_list:
+            sock.send(requests_list.pop(0).encode())
         
 
 def send_questions(sock, html_content,cookie):
@@ -171,7 +176,6 @@ def service_connection(sock, mask,db):
             else:
                 pass
                 #print("NO COOKIE :c")
-
         if rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie is None:
             serve_standard = True
         elif rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie:
@@ -189,9 +193,16 @@ def service_connection(sock, mask,db):
                     pass
             else:
                 incorrectlogin = True
+        elif rq_type[0:4] == "POST" and rq_type[5:16] == "/codeanswer":
+            #temp QB test
+            code = find_header(response,"code")
+            if code == None:
+                code = 'failure'
+            print("CODE =\n")
+            print(code)
+            decode = unquote(code)
+            requests_list.append(f"MARKING_Q\nc\n{repr(decode)}")
 
-
-            if verbose: print("USERNAME AND PASSWORD\n" + user + " " + password)
     if not data:
         #close connection
         if verbose: print(f'Client disconected (no data): {sock.getpeername()}\n'); print("-----------------------------------------------\n")
@@ -218,10 +229,6 @@ def service_connection(sock, mask,db):
 
             html = create_html(["Q_CONTENT","Question?","c","apples","baananas","cake","pie"])
             send_questions(sock,html,user_cookie)
-            
-        #if verbose: print(f'Client disconneccted: {sock.getpeername()}')
-        #sel.unregister(sock)
-        #sock.close()
 
 sel = selectors.DefaultSelector()
 sel.register(server_socket, selectors.EVENT_WRITE | selectors.EVENT_READ, data=accept)
@@ -231,7 +238,8 @@ if verbose: print(f'Server listening on {host}:{QB_PORT}...')
 userinfo = open_backup()
 if userinfo is None:
     userinfo = {"users":{}}
-
+print("USERINFO:\n")
+print(userinfo)
 
 with open("login_page.html","r") as login_page:
     loginHTML = login_page.read()
@@ -249,16 +257,3 @@ while True:
             callback = key.data
             callback(key.fileobj,mask,userinfo)
  
-    # Wait for client connections
-    #client_connection, client_address = server_socket.accept()
-    # Get the client request
-    #request = client_connection.recv(1024).decode()
-    #print("request is ",request)
-
-    # Send HTTP response
-    #response = 'HTTP/1.0 200 OK\n\n' + content
-    #client_connection.sendall(response.encode())
-    #client_connection.close()
-
-# Clos socket
-#server_socket.close()
