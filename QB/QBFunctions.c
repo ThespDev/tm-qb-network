@@ -135,3 +135,9 @@ void search_and_print(char* file_path, char* keyword){
     }
 }
 
+//char* lowerCaser(char *string){
+//  for(int i = 0; string[i]; i++){
+//    string[i] = tolower(string[i]);
+//  }
+//  return string;
+//}

@@ -9,14 +9,23 @@ void send_response(int socket, const char* response) {
     send(socket, response, strlen(response), 0);
 }
 
-        //Requires 2 Arguments - IP of server and Language used
+        //Requires 3 Arguments - IP of server, Language used and CSV file location
+//"Usage: ./QB <TM-IP-Address> <CSV-File-location> <Language #(C,Java or Python)>")
 int main(int argc, char* argv[]) {
+
+    if(argc != 4){
+      printf("Error invalid amount of arguments\n Argument count: %i\n",argc);
+      usage();
+    } 
+    
     int socket_desc;
     struct sockaddr_in server_addr;
-    char server_ip[] = SERVER_IP;
+    char *server_ip = strdup(argv[1]);
+    printf("Server IP now spinning up on IP of %s \n",server_ip);
+    char *CSVFile = strdup(argv[2]);
+    char *mode = strdup(argv[3]);
 
     // Check the language mode from command line arguments
-    char* mode = argv[1];
     int javamode = 0, pythonmode = 0, cmode = 0;
 
     if (strcmp(mode, "java") == 0)
@@ -29,12 +38,15 @@ int main(int argc, char* argv[]) {
         printf("Invalid language mode\n");
         return 1;
     }
-
+   
+    printf("\nServer running off CSV File %s \n will do answers in Language %s\n",CSVFile,mode);
     // Create socket
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_desc == -1) {
-        perror("Failed to create socket");
-        return 1;
+        printf("Failed to create socket\n");
+        printf("Languages are: c, java, or pythong");
+        printf("\n Also have to be in lower case for now");
+        usage();
     }
 
     // Configure server address
@@ -54,7 +66,7 @@ int main(int argc, char* argv[]) {
     // QB receives the language mode from TM
     char language_mode[BUFFER_SIZE];
     read_request(socket_desc, language_mode);
-    printf("Language mode received: %s\n", language_mode);
+    printf("\n Language mode received: %s\n", language_mode);
 
     // QB receives a request for random questions from TM
     char request_type[BUFFER_SIZE];

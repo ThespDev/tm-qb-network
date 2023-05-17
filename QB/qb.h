@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 
 #define BUFFER_SIZE 1024
