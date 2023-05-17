@@ -10,6 +10,7 @@
 
 struct multi_choiceq {
   int qnum;
+  char *lang;
   char qtext[100];
   char* options[4]; //2d array
   int answer; //1 = a, 2 = b, 3 = c, 4 = d e.t.c. 
@@ -49,6 +50,7 @@ char* getfield(char* line, int num)
     return NULL;
 }
                                 //Either C99, Java or Python
+//Function for parsing csv files into strucutres
 struct parsedcsv parsingcsv(char *filename,char* Language){
   FILE *fp;
 
@@ -74,6 +76,8 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
         char *token = strtok(tmp,",");
         //TODO optimise for better memory useage
         if (strcmp(token,"MCA") == 0 ){
+          multiq[MCA_Counter].lang = (char*)calloc(strlen(Language),sizeof(char));
+            memcpy(multiq[MCA_Counter].lang,Language,strlen(Language));
           token = strtok(NULL,",");
           multiq[MCA_Counter].qnum = atoi(token);
           token = strtok(NULL,",");

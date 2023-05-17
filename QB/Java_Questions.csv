@@ -1,0 +1,13 @@
+Question Type (Multi-choice/Text/Code),#Question Number,Question Body,QuestionAnwser/ExpectedResult,Questionpsotibilities(multichoiceonly)/ExpectedResults,,,,,,
+MCA,1,Which of the following is not a valid data type in Java?,>double>number>boolean>char ,2,,,,,,
+MCA,2,"What is the output of the following code snippet? >int x = 5; System.out.println(""\n"" + x++);<",>5>6>Error>Undefined,1,,,,,,
+MCA,3,"What is the purpose of the ""break"" keyword in Java?",>To end a loop or switch statement>To skip a loop iteration>To continue executing a loop>None of the above,0,,,,,,
+MCA,4,Which of the following is a valid way to declare an array in Java?,>int[] arr>int arr[]>both are valid>none of the above,3,,,,,,
+MCA,5,What is the value of x after the following code snippet? >int x = 10; x += 5; System.out.println(x);<,>15>10>5>Error,1,,,,,,
+Code,6,Write a Java program to output “Hello World”,> > >,>Hello World>Hello World>Hello World,,,,,,
+MCA,10,Which of the following is not a valid access modifier in Java?,>public>protected>package-private>private ,4,,,,,,
+MCA,11,What is the output of the following code snippet? >int x = 5; System.out.println(++x);,<br>>5<br>>6<br>>4<br>>Compilation error,2,,,,,,
+#Code,12,"Write code to declare and initialize a string variable named ""myString"" with the value ""Hello <comma>  World!""",#NEED TO STill figure out how to do these,,,,, World!;<br>String myString = Hello, World!;,1
+MCA,13,What is the output of the following code snippet? >int[] arr = {1<comma>2<comma>3}; System.out.println(arr[3]);,<br>>1<br>>2<br>>3<br>>ArrayIndexOutOfBoundsException,4,,,,,,
+MCA,14,What is the difference between a while loop and a do-while loop in Java?,>A while loop may never execute its body if the condition is false<comma> while a do-while loop executes its body at least once>A while loop executes its body at least once <comma>  while a do-while loop may never execute its body if the condition is false>A while loop and a do-while loop are exactly the same>There is no difference between a while loop and a do-while loop in Java,1,,,,,,
+Code,15,"Write code to create a new ArrayList object named ""myList"" that can hold integers.",>ArrayList<Integer> myList = new ArrayList<>();<br>List<Integer> myList = new ArrayList<>();<br>myList = new ArrayList<Integer>();<br>ArrayList myList = new ArrayList();,1,,,,,,
