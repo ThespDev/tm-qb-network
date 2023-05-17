@@ -44,6 +44,7 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
             memcpy(multiq[MCA_Counter].lang,Language,strlen(Language));
           token = strtok(NULL,",");
           multiq[MCA_Counter].qnum = atoi(token);
+
           token = strtok(NULL,",");
           strcpy(multiq[MCA_Counter].qtext,token);
           token = strtok(NULL,",");
@@ -61,6 +62,7 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
         else if (strcmp(token,"Code")==0){
           token = strtok(NULL,",");
           codeq[Code_Counter].qnum = atoi(token);
+
           token = strtok(NULL,",");
           codeq[Code_Counter].lang = (char*)calloc(strlen(Language),sizeof(char));
             memcpy(codeq[Code_Counter].lang,Language,strlen(Language));
@@ -81,10 +83,15 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
         }
        free(tmp);
     }
-    printf("Parsisng successs!");
+    printf("\nParsisng successs! MCA: %i, Code: %i\n",MCA_Counter,Code_Counter);
     struct parsedcsv returnstruct;
+    if (codeq[Code_Counter-1].qnum > multiq[MCA_Counter-1].qnum){
+      returnstruct.numq = codeq[Code_Counter-1].qnum;}
+    else{ returnstruct.numq=multiq[MCA_Counter].qnum;}
     memcpy(returnstruct.programqs,codeq,sizeof(codeq));
     memcpy(returnstruct.multi_choiceqs,multiq,sizeof(multiq));
+    returnstruct.cnum = Code_Counter+1;
+    returnstruct.mcanum = MCA_Counter+1;
     return returnstruct;
 } 
   
@@ -96,44 +103,21 @@ void write_question_and_answer(char* file_path, char* question, char* answer){
     fclose(file);
 }
 
-// function to read a random question and its answer from a file
-void read_random_question_and_answer(char* file_path){
-    FILE* file = fopen(file_path, "r");
-    char line[1000];
-    char question[1000];
-    char answer[1000];
-    int question_found = 0;
-    int multiple_choice = 0;
-    int answer_found = 0;
-    int count = 0;
-
-    // loop through the file to find the questions and answers
-    while (fgets(line, sizeof(line), file)) {
-        if (strstr(line, "Q: ") != NULL) {
-            question_found = 1;
-            answer_found = 0;
-            if (rand() % ++count == 0) {
-                strcpy(question, line + 3);
-                fgets(line, sizeof(line), file);
-                strcpy(answer, line + 3);
-            }
-        } else if (strstr(line, "A: ") != NULL) {
-            answer_found = 1;
-            question_found = 0;
-        }
+// function to read a random q and 
+int* randomQ(int amount,int upper, int *randq){
+  printf("Seed Numbers: %i %i\n",amount,upper);
+  srand(time(0));
+  for (int x = 0;x != amount;x++){
+    randq[x] = (rand() % (upper));
+    for (int y=0; y < sizeof(randq);y++){
+      if (randq[x] == randq[y])
+        randq[x] = (rand()%(upper));
     }
-    printf("%s%s\n", question, answer);
-    fclose(file); // close the file
+  }
+  return randq;
+  
 }
 
-void search_and_print(char* file_path, char* keyword){
-    FILE* file = fopen(file_path, "r");
-    char line[1000];
-    while (fgets(line, sizeof(line), file)) {
-    #include <stdio.h>
-    #include <stdlib.h>
-    }
-}
 
 //char* lowerCaser(char *string){
 //  for(int i = 0; string[i]; i++){

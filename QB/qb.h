@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 
 
 #define BUFFER_SIZE 1024
@@ -17,10 +18,6 @@
 #define WRITE_END 1  // Write end of the pipe
 
 #define MAX_LINE_LENGTH 1024  // Maximum length of a line in the input file
-                              //
-#define USAGE 
-
-
 
 //structure definitons probably going to have to use in diff program
 //TODO optimise for better memory useage
@@ -44,6 +41,13 @@ struct programq {
 struct parsedcsv{
   struct programq programqs[100];
   struct multi_choiceq multi_choiceqs[100];
+  int numq;
+  int cnum;
+  int mcanum;
 };
+
+//Functions go here
+extern struct parsedcsv parsingcsv(char *, char*);
+extern int* randomQ(int,int,int *);
 
 extern void usage();

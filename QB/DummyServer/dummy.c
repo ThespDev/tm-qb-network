@@ -103,10 +103,9 @@ int main(void)
         perror("sigaction");
         exit(1);
     }
-
+while(1){
     printf("server: waiting for connections...\n");
-
-while(1) {  // main accept() loop
+  while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
@@ -128,15 +127,29 @@ while(1) {  // main accept() loop
         }
         break;
   }
-printf("Awaiting Language config of server\n");
-char Language[1024];
-int numbytes = (recv(new_fd, Language, 10, 0));
-Language[numbytes]='\0';
-printf("Language found as: %s\n",Language);
+  printf("Awaiting Language config of server\n");
+  char Language[1024];
+  int numbytes = (recv(new_fd, Language, 10, 0));
+  Language[numbytes]='\0';
+  printf("Language found as: %s\n",Language);
 
-while(1){ //Testing grounds
-
+  while(1){ //Testing grounds
+      //
+      //RANDOM QUESTION TEST
+    printf("Sending Request for 5 random questions\n");
+    char *request = "RAND_Q\nMCA\n5";
+    send(new_fd,request,strlen(request),0);
+    char response[1024];
+    numbytes = recv(new_fd,response,1024,0);
+    response[numbytes] = '\0';
+    printf("Response: \n%s\n",response);
+    break;
+      //Content Test
+    printf("DNDNDN\n");
+    
   }
+  printf("------Disconnected!-----\n");
+}
 
-    return 0;
+return 0;
 }
