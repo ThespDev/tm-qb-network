@@ -3,6 +3,8 @@
 void read_request(int socket, char* buffer) {
     recv(socket, buffer, BUFFER_SIZE, 0);
     buffer[strcspn(buffer, "\n")] = '\0';  // Remove newline character
+    printf("arrived data: %s\n",buffer);
+    // Remove newline character
 }
 
 void send_response(int socket, const char* response) {
@@ -38,6 +40,7 @@ int main(int argc, char* argv[]) {
         printf("Invalid language mode\n");
         return 1;
     }
+    struct parsedcsv CSVFIlePars = parsingcsv(CSVFile,mode);
    
     printf("\nServer running off CSV File %s \nWill do answers in Language %s\n",CSVFile,mode);
     // Create socket
@@ -64,7 +67,7 @@ int main(int argc, char* argv[]) {
     }
 
     //QB recives inital ACK from server
-    printf("\nConnection made, awaiting for inital ACK");
+    printf("\nConnection made, awaiting for inital ACK\n");
     char ack[BUFFER_SIZE];
     read_request(socket_desc, ack);
     if ( strcmp(ack,"ack:TMserver")){
@@ -77,14 +80,33 @@ int main(int argc, char* argv[]) {
     printf("Sending Language '%s' info to specified server\n",mode);
     send_response(socket_desc, mode);
 
+ ////PRIMARY LOOP, responses and returns----------------
+    printf("Inital Setup done, now running in serving mode\n");
+    while (1){//Looping server mode 
+      char Requesttype[BUFFER_SIZE];
+      read_request(socket_desc,Requesttype); 
+      
+      //If server requests a random question (maybe turn into function later)
+      if (strcmp(Requesttype,"RAND_Q")){
+        printf("Got here!");
+        char num[BUFFER_SIZE];
+        read_request(socket_desc,num);
+        int amountofq;
+        num[strcspn(num,"\eom")] = '\0'; memmove(num,num+6,strlen(num));
+        amountofq = atoi(num); 
+        int *randqlist;
+        randqlist = (int*)calloc(amountofq,sizeof(int));
+        randomQ(amountofq, CSVFIlePars.numq, randqlist);
+        printf("randomquestions: %i,%i,%i",randqlist[1],randqlist[3],randqlist[4]);
+        }
+    }
+       
+
     // QB receives a request for random questions from TM
     char request_type[BUFFER_SIZE];
     read_request(socket_desc, request_type);
     printf("Request type received: %s\n", request_type);
 
-    // QB sends a response with random question numbers to TM
-    send_response(socket_desc, "RAND_Q\n");
-    send_response(socket_desc, "[1, 2, 3, 4]\n");
 
     // QB receives a request for question content from TM
     read_request(socket_desc, request_type);

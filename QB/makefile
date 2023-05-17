@@ -2,7 +2,7 @@
 PROJECT = qb
 HEADERS = qb.h
 OBJ = piping.c QBFunctions.c QBStreamClient.c 
-C11 = gcc  -D_POSIX_C_SOURCE=200809L -std=c11 -Werror
+C11 = gcc -g -D_POSIX_C_SOURCE=200809L -std=c11 -Werror
 
 qb-network : QBStreamClient.o QBFunctions.o Piping.o globals.o 
 	$(C11) -o qb \
