@@ -3,6 +3,7 @@ import json
 import sys
 import selectors
 import pickle
+from urllib.parse import unquote
 
 
 verbose =  True
@@ -25,6 +26,7 @@ qb_socket.listen()
 qb_list = []
 connections = []
 
+
 def create_html(request):
     
     question = request[1]
@@ -33,9 +35,22 @@ def create_html(request):
     if type == "c":
         html += '<form action="/codeanswer" method="post">'
         html += '<p> Please put the answer below:</p>'
-        html += '<input type="text" id="code" name="code" style="height:250px;width:100%">'
+        html += '<textarea id="code" name="code" rows="10" cols="50"></textarea>'
         html += '<input type="submit" value="Submit">'
         html += '</form>'
+        html += """
+        <script>
+        document.getElementById("code").onkeydown = function(e) {
+            if (e.key == 'Tab') {
+                e.preventDefault();
+                var start = this.selectionStart;
+                this.value = this.value.substring(0, start) + "\t" + this.value.substring(this.selectionEnd);
+                this.selectionStart = this.selectionEnd = start + 1;
+            }
+        };
+        </script>
+
+        """
 
     elif type == "m":
         index = 1
@@ -47,13 +62,14 @@ def create_html(request):
         html += '<input type="submit" value="Submit">'
         html += '</form>'
     return html
-def find_cookie(headers):
-    cookie = None
+#used for cookies, content ect
+def find_header(headers,value):
+    header_val = None
     for header in headers:
         title = header.split(": ")
-        if title[0] == "Cookie":
-            cookie = title[1]
-    return cookie
+        if title[0] == value:
+            header_val = title[1]
+    return header_val
 
 
 def backup_data(db):
@@ -104,16 +120,23 @@ def service_qb(sock,mask,db):
     datab = []
     if mask & selectors.EVENT_READ:
         while True:
-            block = sock.recv(1024)
-            if len(block) == 0:
+            try:
+                block = sock.recv(1024)
+                print(block)
+                if len(block) == 0:
+                    print("breaking")
+                    break
+                datab.append(block)
+            except BlockingIOError:
+                print("error")
                 break
-            datab.append(block)
         data = b''.join(datab)
         print(data)
+        sock.send("test".encode())
         
 
-def send_questions(sock, html_content):
-    response = 'HTTP/1.1 200 OK\n\n' + html_content
+def send_questions(sock, html_content,cookie):
+    response = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={cookie}\n\n' + html_content
     sock.send(response.encode())
 
 def service_connection(sock, mask,db):
@@ -121,9 +144,8 @@ def service_connection(sock, mask,db):
     serve_standard = False
     incorrectlogin = False
     custom_webpage = False
-    first_login = False
-    connection_type = sock.getsockname()[1]
-    print("SOCK INFO ",sock.getsockname()[1])
+    #first_login = False
+    #connection_type = sock.getsockname()[1]
     print("Event Read", (mask & selectors.EVENT_READ))
     print("Event Write",(mask & selectors.EVENT_WRITE))
 
@@ -140,16 +162,18 @@ def service_connection(sock, mask,db):
         data = b''.join(datab)
         print("RECEIVED DATA \n",data.decode())
         response = data.decode().split('\n')
-        request_cookie = find_cookie(response)
+        request_cookie = find_header(response,"Cookie")
         rq_type = response[0]
         if verbose:
             if request_cookie is not None:
-                print("COOKIE = " + request_cookie)
+                #print("COOKIE = " + request_cookie)
+                user_cookie = request_cookie
             else:
-                print("NO COOKIE :c")
+                pass
+                #print("NO COOKIE :c")
+
         if rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie is None:
             serve_standard = True
-            print("serving standard")
         elif rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie:
             custom_webpage = True
         elif rq_type[0:3] == "GET" and rq_type[4:10] == "/login":
@@ -157,11 +181,9 @@ def service_connection(sock, mask,db):
             user = creds.split('=')[1].split('&')[0]
             password = creds.split('=')[2]
             user_cookie = verify_user(user,password)
-            print("user cookie is", user_cookie)
+            print("USER LOGGING IN WITH COOKIE", user_cookie)
             if user_cookie:
                 custom_webpage=True
-                if request_cookie is None:
-                    first_login=True
                 if user_cookie not in db:
                     register_user(user,user_cookie,db)
                     pass
@@ -170,10 +192,9 @@ def service_connection(sock, mask,db):
 
 
             if verbose: print("USERNAME AND PASSWORD\n" + user + " " + password)
-            if verbose: print("login attempted")
     if not data:
         #close connection
-        if verbose: print(f'Client disconected (no data): {sock.getpeername()}')
+        if verbose: print(f'Client disconected (no data): {sock.getpeername()}\n'); print("-----------------------------------------------\n")
         sel.unregister(sock)
         sock.close()
         return           
@@ -182,20 +203,21 @@ def service_connection(sock, mask,db):
         #if test: response = "hello there"; sock.send(response.encode())
         if serve_standard:
             response = 'HTTP/1.1 200 OK \n\n' + loginHTML    
-            print("sent response")
+            #print("sent response")
             sock.send(response.encode())
         elif incorrectlogin:
             response = 'HTTP/1.1 200 OK\n\n' + loginHTML    
             sock.send(response.encode())
         elif custom_webpage:
-            if first_login:
-                print("user cookie is", user_cookie)
-                header = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
-                response = header + "<h1>CITS3002 Project</h1>"
-                sock.send(response.encode())
-                print("SENDING HTML \n", response)
+            #if first_login:
+            #    print("user cookie is", user_cookie)
+            #    header = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
+            #    response = header + "<h1>CITS3002 Project</h1>"
+            #    sock.send(response.encode())
+            #    print("SENDING HTML \n", response)
+
             html = create_html(["Q_CONTENT","Question?","c","apples","baananas","cake","pie"])
-            send_questions(sock,html)
+            send_questions(sock,html,user_cookie)
             
         #if verbose: print(f'Client disconneccted: {sock.getpeername()}')
         #sel.unregister(sock)
@@ -218,6 +240,7 @@ with open("multi_choice.html","r") as multi_page:
     multiHTML = multi_page.read()
 
 while True:
+    backup_data(userinfo)
     events = sel.select(timeout=1)
     for key,mask in events:
         if key.data is None:
