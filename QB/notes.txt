@@ -8,5 +8,46 @@ could be smart to add a \n after every ; within the boundaries of ">"
 *I've updated the QBStreamClient.c file to match logic required from TM according to Pablo.
 Maybe if we can edit/sync with your parsing funtion when your ready- Ryza
 
-Thanks Ryza -schmil
+*Logic outline provided by Pablo for the Client to communicate with the Server
+Upon connection of the QB to TM -
+QB sends TM "Python" or "Java" or "C" to indicate which mode/language it is server, for TM to remember this
 
+( X -> Y indicates a request from X to Y, description of request will be in square brackets[])
+(X <- Y will indicate the appropriate response from Y to X for the request above it)
+(\eom will indicate end of message, this will not be in the actual request/response, this is just for clarification for writing thing)
+
+TM -> QB:
+RAND_Q\n (this is the request type, so when the QB gets a request with the first line as RAND_Q, it knows what to do)
+n\eom (integer indicating number of questions it wants)
+
+TM <- QB:
+RAND_Q\n (might as well keep the response header the same as well)
+[1,2,3,4]\eom (numbers separated via comma representing the question numbers for the "random questions" requested, not the actual content of those questions yet, length == n, which is the requested number of questions)
+
+TM -> QB:
+Q_CONTENT\n (This request asks for the content of a specific question so that it may display it to the user)
+n\eom (question number) 
+
+TM <- QB: 
+Q_CONTENT\n
+content (string showing the actual question correlated to the requested number)
+m OR c\n (this value will be m or c, indicating whether it is multi choice or coding style, this is important for the TM to know so that it may display the correct HTML)
+(IF PREVIOUS TYPE IS "m", DISPLAY RESPONSES BELOW DELIMITED BY A \n, e.g: if content was "which is the best language)
+java\n
+c\n
+python\n
+haskell\eom
+
+TM->QB
+MARKING\n
+num\n (question number)
+m OR c\n (indicates to the QB which type of question is to be marked)
+response\eom (either a single number indicating which multi choice response was chosen OR code bundled as a string to be run)
+
+TM <- QB
+ MARKING\n
+num\n(question number)
+correct/incorrect\eom (indicating whether the response marked was correct or incorrect)
+-Ryza
+
+Thanks Ryza -schmil
