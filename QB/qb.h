@@ -42,6 +42,8 @@ struct parsedcsv{
   struct programq programqs[100];
   struct multi_choiceq multi_choiceqs[100];
   int numq;
+  int cnum;
+  int mcanum;
 };
 
 //Functions go here

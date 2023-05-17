@@ -134,16 +134,18 @@ while(1){
   printf("Language found as: %s\n",Language);
 
   while(1){ //Testing grounds
+      //
+      //RANDOM QUESTION TEST
     printf("Sending Request for 5 random questions\n");
-    char *request = "RAND_Q";
-    send(new_fd,request,strlen(request),0);
-    request = "5\eom";
+    char *request = "RAND_Q\nMCA\n5";
     send(new_fd,request,strlen(request),0);
     char response[1024];
     numbytes = recv(new_fd,response,1024,0);
     response[numbytes] = '\0';
-    printf("Response: \n %s",response);
+    printf("Response: \n%s\n",response);
     break;
+      //Content Test
+    printf("DNDNDN\n");
     
   }
   printf("------Disconnected!-----\n");

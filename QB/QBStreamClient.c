@@ -2,8 +2,6 @@
 
 void read_request(int socket, char* buffer) {
     recv(socket, buffer, BUFFER_SIZE, 0);
-    buffer[strcspn(buffer, "\n")] = '\0';  // Remove newline character
-    printf("arrived data: %s\n",buffer);
     // Remove newline character
 }
 
@@ -83,22 +81,34 @@ int main(int argc, char* argv[]) {
  ////PRIMARY LOOP, responses and returns----------------
     printf("Inital Setup done, now running in serving mode\n");
     while (1){//Looping server mode 
-      char Requesttype[BUFFER_SIZE];
-      read_request(socket_desc,Requesttype); 
-      
-      //If server requests a random question (maybe turn into function later)
-      if (strcmp(Requesttype,"RAND_Q")){
-        printf("Got here!");
+      char Requesttype[BUFFER_SIZE/2];
+      read_request(socket_desc,Requesttype);      
+
+    //If server requests a random question (maybe turn into function later)
+      if (strcmp(Requesttype-7,"RAND_Q")){
+        char Type[3];
+        strcpy(Type,Requesttype+7); //Cut off rest of text wit how small
         char num[BUFFER_SIZE];
-        read_request(socket_desc,num);
+        strcpy(num,Requesttype);
         int amountofq;
-        num[strcspn(num,"\eom")] = '\0'; memmove(num,num+6,strlen(num));
+        memmove(num,num+10,strlen(num));
         amountofq = atoi(num); 
-        int *randqlist;
-        randqlist = (int*)calloc(amountofq,sizeof(int));
-        randomQ(amountofq, CSVFIlePars.numq, randqlist);
-        printf("randomquestions: %i,%i,%i",randqlist[1],randqlist[3],randqlist[4]);
+        int randqlist[amountofq];
+        if (strcmp(Type,"MCA"))
+          randomQ(amountofq, CSVFIlePars.mcanum,randqlist);
+        else
+          randomQ(amountofq, CSVFIlePars.cnum,randqlist);
+        char responsetext[sizeof(randqlist)*2+3];
+        responsetext[0] = '[';
+        for (int i = 0; i < sizeof(randqlist); i++){
+          char temp[10];
+          sprintf(temp,"%i",randqlist[i]);
+          strcat(responsetext,temp);
+          strcat(responsetext,",");
         }
+        strcat(responsetext, "]");
+        send_response(socket_desc, responsetext);
+      }
     }
        
 
