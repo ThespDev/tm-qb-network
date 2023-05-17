@@ -49,5 +49,3 @@ TM <- QB
 num\n(question number)
 correct/incorrect\eom (indicating whether the response marked was correct or incorrect)
 -Ryza
-
-Thanks Ryza -schmil
