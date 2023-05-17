@@ -7,3 +7,6 @@ could be smart to add a \n after every ; within the boundaries of ">"
 
 *I've updated the QBStreamClient.c file to match logic required from TM according to Pablo.
 Maybe if we can edit/sync with your parsing funtion when your ready- Ryza
+
+Thanks Ryza -schmil
+

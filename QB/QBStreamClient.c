@@ -1,13 +1,4 @@
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-
-#define BUFFER_SIZE 1024
-#define SERVER_IP "127.0.0.1"  // Replace with the actual server IP
-#define SERVER_PORT 9002       // Replace with the actual server port
+#include "qb.h"
 
 void read_request(int socket, char* buffer) {
     recv(socket, buffer, BUFFER_SIZE, 0);
@@ -18,6 +9,7 @@ void send_response(int socket, const char* response) {
     send(socket, response, strlen(response), 0);
 }
 
+        //Requires 2 Arguments - IP of server and Language used
 int main(int argc, char* argv[]) {
     int socket_desc;
     struct sockaddr_in server_addr;
@@ -100,3 +92,4 @@ int main(int argc, char* argv[]) {
     close(socket_desc);
 
     return 0;
+}

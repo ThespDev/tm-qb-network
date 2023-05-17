@@ -1,31 +1,4 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <string.h>
-#include <stdlib.h>
-
-#define BUFFER_SIZE 1024  // Size of the pipe buffer
-#define READ_END 0  // Read end of the pipe
-#define WRITE_END 1  // Write end of the pipe
-
-#define MAX_LINE_LENGTH 1024  // Maximum length of a line in the input file
-
-// Multiple-choice question structure
-struct multi_choiceq {
-    int qnum;  // Question number
-    char qtext[100];  // Question text
-    char options[4][10];  // Options for the question
-    int answer;  // Correct answer
-};
-
-// Programming question structure
-struct programq {
-    int qnum;  // Question number
-    char* qtext;  // Question text
-    char* lang;  // Programming language for the question
-    char* inputs[3];  // Inputs for the question
-    char* outputs[3];  // Expected outputs for the question
-};
+#include "qb.h"
 
 // Function to parse a multiple-choice question from a string
 void parse_multi_choiceq(char* str, struct multi_choiceq* q) {
@@ -39,7 +12,7 @@ void parse_programq(char* str, struct programq* q) {
         &(q->qnum), &(q->qtext), &(q->lang), &(q->inputs[0]), &(q->inputs[1]), &(q->inputs[2]), &(q->outputs[0]), &(q->outputs[1]), &(q->outputs[2]));
 }
 
-int main(void) {
+int piping(void) {
     char write_msg[BUFFER_SIZE];  // Buffer for writing to the pipe
     char read_msg[BUFFER_SIZE];  // Buffer for reading from the pipe
     int fd[2];  // File descriptors for the pipe

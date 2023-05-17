@@ -1,41 +1,5 @@
+#include "qb.h"
 // USAGE: write_question_and_answer <filepath> <languageused>
-
-#define LINELENGTH 500
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-//structure definitons probably going to have to use in diff program
-//TODO optimise for better memory useage
-
-struct multi_choiceq {
-  int qnum;
-  char *lang;
-  char qtext[100];
-  char* options[4]; //2d array
-  int answer; //1 = a, 2 = b, 3 = c, 4 = d e.t.c. 
-};
-
-struct programq {
-  int qnum;
-  char* qtext;
-  char* lang; //C99, Java or Python
-  char* inputs[3];  //What is expected to go in
-  char* outputs[3]; //What is expected to come out 
-};
-
-struct parsedcsv{
-  struct programq programqs[100];
-  struct multi_choiceq multi_choiceqs[100];
-};
-
-const char Usage_msg[] = ("USAGE: ./Write_Questions <file path> <Langauge used>");
-
-void usage(){
-  printf("\n%s\n",Usage_msg);
-  exit(EXIT_FAILURE);
-}
-
 
 char* getfield(char* line, int num)
 {
