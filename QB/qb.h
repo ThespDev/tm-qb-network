@@ -12,9 +12,7 @@
 #define BUFFER_SIZE 1024
 #define SERVER_IP "127.0.0.1"  // Replace with the actual server IP
 #define SERVER_PORT 9002       // Replace with the actual server port
-#define LINELENGTH 500
-
-#define BUFFER_SIZE 1024  // Size of the pipe buffer
+#define LINELENGTH 500 
 #define READ_END 0  // Read end of the pipe
 #define WRITE_END 1  // Write end of the pipe
 

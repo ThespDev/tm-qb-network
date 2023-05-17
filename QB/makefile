@@ -8,16 +8,16 @@ qb-network : QBStreamClient.o QBFunctions.o Piping.o globals.o
 	$(C11) -o qb \
 	QBStreamClient.o QBFunctions.o Piping.o globals.o -lm
 
-QBStreamClient.o: QBFunctions.c Piping.c globals.c $(HEADERS)
+QBStreamClient.o: QBStreamClient.c QBFunctions.c Piping.c globals.c $(HEADERS)
 	$(C11) -c QBStreamClient.c
 
-QBFunctions.o: Piping.c globals.c $(HEADERS)
+QBFunctions.o: QBFunctions.c Piping.c globals.c $(HEADERS)
 	$(C11) -c QBFunctions.c
 
-Piping.o: globals.c $(HEADERS)
+Piping.o: Piping.c globals.c $(HEADERS)
 	$(C11) -c Piping.c
 
-globals.o: $(HEADERS)
+globals.o: globals.c $(HEADERS)
 	$(C11) -c globals.c 
 
 	

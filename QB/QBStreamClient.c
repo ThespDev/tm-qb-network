@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
    
-    printf("\nServer running off CSV File %s \n will do answers in Language %s\n",CSVFile,mode);
+    printf("\nServer running off CSV File %s \nWill do answers in Language %s\n",CSVFile,mode);
     // Create socket
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_desc == -1) {
@@ -63,10 +63,19 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // QB receives the language mode from TM
-    char language_mode[BUFFER_SIZE];
-    read_request(socket_desc, language_mode);
-    printf("\n Language mode received: %s\n", language_mode);
+    //QB recives inital ACK from server
+    printf("\nConnection made, awaiting for inital ACK");
+    char ack[BUFFER_SIZE];
+    read_request(socket_desc, ack);
+    if ( strcmp(ack,"ack:TMserver")){
+      perror("Error: Proper TM ack not recived, exiting");
+      usage();
+    }
+    printf("ACK recived\n");
+    
+    // QB Sends the language mode to TM
+    printf("Sending Language '%s' info to specified server\n",mode);
+    send_response(socket_desc, mode);
 
     // QB receives a request for random questions from TM
     char request_type[BUFFER_SIZE];

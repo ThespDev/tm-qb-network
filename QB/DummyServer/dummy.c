@@ -106,7 +106,7 @@ int main(void)
 
     printf("server: waiting for connections...\n");
 
-    while(1) {  // main accept() loop
+while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
@@ -121,16 +121,22 @@ int main(void)
 
         if (!fork()) { // this is the child process
             close(sockfd); // child doesn't need the listener
-            if (send(new_fd, "C", 13, 0) == -1)
+            int sendsize = sizeof("ack:TMserver");
+            if (send(new_fd, "ack:TMserver", sendsize, 0) == -1)
                 perror("send");
-            int sendsize = sizeof("Request Type Test");
-            if (send(new_fd, "Request type test",sendsize,0)==-1)
-                perror("send");
+            exit (0);
         }
-        close(new_fd);  // parent doesn't need this
         break;
-    }
-    send(new_fd,"Additonal Crap IDK",40,0);
+  }
+printf("Awaiting Language config of server\n");
+char Language[1024];
+int numbytes = (recv(new_fd, Language, 10, 0));
+Language[numbytes]='\0';
+printf("Language found as: %s\n",Language);
+
+while(1){ //Testing grounds
+
+  }
 
     return 0;
 }
