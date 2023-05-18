@@ -188,17 +188,24 @@ while(1){
     send(new_fd,request6,strlen(request6),0);
     numbytes = recv(new_fd,response,1024,0);
     response[numbytes] = '\0';
-    printf("Response: \n%s\n",response); 
+    printf("Response: \n%s\n",response);
+    sleep(1);
       //Test 2
     printf("**Sending Request for Marking of a code Question\n");
     printf("#Should respond with wrong when using C file\n");
-    char *request7 = "MARKING\nCde\n05\n#include <stdio.h> \nint main() \n printf(\"Hello World\\n\"); \nreturn 0;} \n71";
+    char *request7 = "MARKING\nCde\n05\n#include <stdio.h> \nint main() \n printf(\"Hello World\\n\"); \nreturn 0;} \n35";
     send(new_fd,request7,strlen(request7),0);
     numbytes = recv(new_fd,response,1024,0);
     response[numbytes] = '\0';
     printf("Response: \n%s\n",response);
       //Test 3
-   
+    printf("**Sending Request for Marking of a code Question\n");
+    printf("#Should respond with right when using C file\n");
+    char *request8 = "MARKING\nCde\n00\n#include <stdio.h> \nint main() {\n printf(\"Hello World\"); \nreturn 0;} \n13";
+    send(new_fd,request8,strlen(request8),0);
+    numbytes = recv(new_fd,response,1024,0);
+    response[numbytes] = '\0';
+    printf("Response: \n%s\n",response); 
 
 
     break;

@@ -1,21 +1,18 @@
 #Question Type (Multi-choice/Text/Code),#Question Number,Question Body,QuestionAnwser/ExpectedResult,Questionpsotibilities(multichoiceonly)/ExpectedResults
 MCA,1,Which of the following is not a valid data type in C?,>int>string>float>char,2
-MCA,2,"What is the output of the following code snippet?  >int x = 5; printf(""%d\n""<comma> x++);<",>6>5>Error>Undefined,1
 MCA,3,"What is the purpose of the ""break"" keyword in C?",>To end a loop or switch statement>To skip a loop iteration>To continue executing a loop>None of the above,0
 MCA,4,Which of the following is a valid way to declare a pointer in C?,>int* x>in *x>int * x>all of the above,4
 MCA,5,What is the value of x after the following code snippet?  >int x = 10;  x += 5,>x=15>x=5>x=50>x=10,1
-Code,6,Write Code to output “Hello World”,> > >,>Hello World >Hello World >Hello World
+Code,6,Write Code to output “Hello World”,> > > >Hello World>Hello World>Hello World
 Code,7,Write Code to output and argument as a string,>hello>test>argumenttest,>hello>test>argumenttest
 MCA,8,Which of the following is not a valid data type in C?,>int>string>float>char,2
 Code,9,Write a C function that takes in two integers as arguments and returns the larger of the two numbers.,> 8 9 >56 42 >1223 3543 >213 412,>9 >56 >3543 >412
 #Code,10,Write a C function that takes in a string as an argument and prints out each character of the string on a new line.,# no idea how to do thiis sorta one,
 MCA,11,Which of the following is a valid way to declare a constant in C?,>#define CONSTANT 5>const int CONSTANT = 5;>constexpr int CONSTANT = 5;>All of the above,4
 #Code,12,Write C code to swap the values of two variables without using a temporary variable.,# no idea how to do thiis sorta one //TODO setup these questions properly,
-MCA,13,"What is the output of the following code snippet? >Int x = 5; printf(""%d ""<comma> x++); printf(""%d ""<comma> x); printf(""%d""<comma> ++x);<",>5 6 7>8>6 7 8>7 7 7,3
 Code,14,Write C code to take arguments and then output the arguments in reverse,>0 1 2 3 4>4 6 7 8>4 4 0 2 3>hello yes no please,>4 3 2 1>8 7 6 4>3 2 0 4 4>please no yes hello
 MCA,15,"Which of the following is true regarding the ""volatile"" keyword in C?",">The """"volatile"""" keyword is used to declare a variable that can be modified by another thread.>The """"volatile"""" keyword is used to declare a variable that can be modified by an ISR.>The """"volatile"""" keyword is used to declare a variable that can be modified by hardware.>All of the above are true.""",3
 #Code,16,Write C code to remove all duplicates from an array of integers in place (i.e. without creating a new array).,# no idea how to do thiis sorta one //TODO setup these questions properly,
-MCA,17,"What is the output of the following code snippet? #include &lt;stdio.h&gt;<br><br> void swap(int *a<comma> int *b) {<br>   int tmp = *a;<br>   *a = *b;<br>   *b = tmp;<br> }<br><br> int main() {<br>   int x = 5;<br>   int y = 10;<br>   swap(&amp;x<comma> &amp;y);<br>   printf(""%d %d"" <comma> x <comma> y);<br>   return 0;<br> }",>10 5>5 10>0 10>0 5,1
 MCA,18,"Which of the following is true regarding the ""static"" keyword in C?",">The ""static"" keyword can be used to declare global variables that can be accessed only within the file they are declared in.>The ""static"" keyword can be used to declare local variables that retain their value between function calls.>The ""static"" keyword can be used to declare functions that can be accessed only within the file they are declared in.>All of the above are true.",4
 Code,19,Write C code to find the factorial of a given number using recursion.,>4>6>8>10,>24>720>40320>3628800
 Code,21,Write C code to reverse a string in place (i.e. without creating a new string).,>hello world>foo bar>reverse>12345,>dlrow olleh>rab oof>esrever>54321

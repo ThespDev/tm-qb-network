@@ -64,18 +64,21 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
           codeq[Code_Counter].qnum = Code_Counter;
 
           token = strtok(NULL,",");
+
           codeq[Code_Counter].lang = (char*)calloc(strlen(Language),sizeof(char));
             memcpy(codeq[Code_Counter].lang,Language,strlen(Language));
           codeq[Code_Counter].qtext = (char*)calloc(strlen(token),sizeof(char));
             strcpy(codeq[Code_Counter].qtext,token);
           token = strtok(NULL,",");
+          char str[strlen(token)];
+          strcpy(str,token);
+          char *argfields = strtok(str,">"); 
           for (int x = 0; x < 3; x ++){
-            char *argfields = strtok(token,">");  
+            char *argfields = strtok(str,">");  
             codeq[Code_Counter].inputs[x] = (char*)calloc(strlen(argfields),sizeof(char));
-              strcpy(codeq[Code_Counter].inputs[x],argfields);
-              argfields = strtok(NULL,",");}
+              strcpy(codeq[Code_Counter].inputs[x],argfields);}
           for (int x = 0; x < 3; x++){
-            char *argfields = strtok(token,">"); 
+            char *argfields = strtok(str,">"); 
             codeq[Code_Counter].outputs[x] = (char*)calloc(strlen(argfields),sizeof(char));
               strcpy(codeq[Code_Counter].outputs[x],argfields);
           }
@@ -135,6 +138,20 @@ char *exec(char *command,char *Output){
   return Output;
 }
 
+char *delimfinder(char *targetstring,char delim,int number){
+  int counter = 0;
+  int end = 0;
+  int start = 0;
+  for (;counter<(number+1);end++){
+    if (targetstring[end]==delim){
+      counter++;
+      if (counter == number+1)
+        break;
+      start = end;
+    } 
+  }
+  return targetstring;
+}
 
 //char* lowerCaser(char *string){
 //  for(int i = 0; string[i]; i++){

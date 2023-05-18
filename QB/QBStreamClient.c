@@ -1,5 +1,6 @@
 #include "qb.h"
 
+
 void read_request(int socket, char* buffer) {
     recv(socket, buffer, BUFFER_SIZE, 0);
     // Remove newline character
@@ -66,12 +67,12 @@ int main(int argc, char* argv[]) {
 
     //QB recives inital ACK from server
     printf("\nConnection made, awaiting for inital ACK\n");
-    char ack[BUFFER_SIZE];
-    read_request(socket_desc, ack);
-    if ( strcmp(ack,"ack:TMserver")){
-      perror("Error: Proper TM ack not recived, exiting");
-      usage();
-    }
+   // char ack[BUFFER_SIZE];
+   // read_request(socket_desc, ack);
+   // if ( strcmp(ack,"ack:TMserver")){
+   //   perror("Error: Proper TM ack not recived, exiting");
+   //   usage();
+   // }
     printf("ACK recived\n");
     
     // QB Sends the language mode to TM
@@ -80,12 +81,13 @@ int main(int argc, char* argv[]) {
 
  ////PRIMARY LOOP, responses and returns----------------
     printf("Inital Setup done, Awaiting contanct from server...\n");
-
+    char *Requesttype = calloc(BUFFER_SIZE,sizeof(char));
+    char *messageID = calloc(4,sizeof(char));
     while (1){//Looping server mode 
-      char *Requesttype = calloc(BUFFER_SIZE,sizeof(char));
+      strcpy(Requesttype,"");
       read_request(socket_desc,Requesttype);      
       char responsetext[BUFFER_SIZE*2];
-      char *messageID = calloc(4,sizeof(char));
+      strcpy(messageID,"");
       strcat(messageID,&Requesttype[strlen(Requesttype)-2]);
       //Get last two charachters of a string, convert it to a number
       int response = 0;
@@ -135,12 +137,12 @@ int main(int argc, char* argv[]) {
         if (strcmp(Type,"MCA")==0){
           strcat(responsetext,"m\n");
           strcat(responsetext,CSVFIlePars.multi_choiceqs[qnum].qtext);
-          strcat(responsetext,"\n[");
+          strcat(responsetext,"\n");
           for (int x =0; x < 4; x++){
             strcat(responsetext,CSVFIlePars.multi_choiceqs[qnum].options[x]);
-            strcat(responsetext,",");
+            strcat(responsetext,"\n");
           }
-          responsetext[strlen(responsetext)-1] = ']';
+          responsetext[strlen(responsetext)-1] = '\0';
         }
         else {
           strcat(responsetext,"c\n");
@@ -167,8 +169,8 @@ int main(int argc, char* argv[]) {
         strncat(responsetext,Type,3);
         char StAnswer[strlen(Requesttype)]; //member of the holy c
         strcpy(StAnswer,Requesttype+15);
-        StAnswer[strlen(StAnswer)-1] = '\0'; //Get rid of formatting new line
         if (strcmp(Type,"MCA")==0){
+          puts(StAnswer);
           if(CSVFIlePars.multi_choiceqs[qnum].answer==atoi(StAnswer))
             strcat(responsetext,"\nCorrect");
           else 
@@ -186,14 +188,29 @@ int main(int argc, char* argv[]) {
           else if (cmode){
             strcpy(command,"gcc -o test -x c ~/tm-qb-network/QB/StdntAnswer.temp");
             char Output[BUFFER_SIZE];
-            exec(command,Output);
-            puts(Output);
-            if (strcmp(Output,"Cde")!=0){
-              printf("File couldn't compile");
-              strcat(responsetext,"Incorrect");
+            int ReturedV = system(command);
+            if (ReturedV != 0 ){
+              printf("Compile Error\n");
+              strcat(responsetext,"\nIncorrect");
             }
             else{
-              strcpy(command,"./test");
+              char Cattext[20];
+              strncpy(Cattext,"\nCorrect",8);
+              for(int x = 0; x < 3; x++){
+                strcpy(command,"");
+                strcpy(Output,"");
+                strcpy(command,"./test");
+                if ((CSVFIlePars.programqs[qnum].inputs[x])!=NULL)
+                  strcat(command,CSVFIlePars.programqs[qnum].inputs[x]);
+                exec(command,Output);
+                if (strcmp(Output,CSVFIlePars.programqs[qnum].outputs[x])!=0){
+                  puts(CSVFIlePars.programqs[qnum].outputs[x]);
+                  printf("\nResponses do not line up to expected values\n");
+                  strncpy(Cattext,"\nIncorrect",10);
+                  break;
+                }
+              }
+            strcat(responsetext,Cattext);
             }
           }
           else if (pythonmode){
