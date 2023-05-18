@@ -32,19 +32,33 @@ id = 0
 def get_questions():
     pass
 
-def create_html(request):
+def create_html(db,user_cookie):
+    request = db["users"][user_cookie]["current_q_content"]
+    curr_q  = db["users"][user_cookie]["current_q"]
+    attempt_num = db["users"][user_cookie]["attempt_num"]
+    if attempt_num[curr_q] < 2 or db["users"][user_cookie]["completed"][curr_q]:
+        can_submit = False
+    else: can_submit = True
     if request is None:
         return None
-    question = request[1]
-    type = request[2]
+    question = request[2]
+    type = request[1]
     html = "<body>"
     html += f"<h2>{question}<h2>"
     if type == "c":
         html += '<form action="/codeanswer" method="post">'
         html += '<p> Please put the answer below:</p>'
         html += '<textarea id="code" name="code" rows="10" cols="50"></textarea>'
-        html += '<input type="submit" value="Submit">'
+        if can_submit:
+            html += '<input type="submit" value="Submit">'
+        if not can_submit:
+            html += "<h2> Cannot submit question, max attempts achieved or gotten right</h2>"
         html += '</form>'
+        html += """
+        <form action = "/nextq" method = "post">
+        <input type="submit" value="NEXT QUESTION">
+        </form>
+        """
         html += """
         <script>
         document.getElementById("code").onkeydown = function(e) {
@@ -64,10 +78,18 @@ def create_html(request):
         html += '<form action="/mcanswer" method="post">'
         for i in range(3,7):
             #Check if response needs to be in number or text for mcq
-            html += f'<input type="radio" name="answer" value="{request[i]}"> {request[i]}<br>'
+            html += f'<input type="radio" name="answer" value="{index}"> {request[i]}<br>'
             index += 1
-        html += '<input type="submit" value="Submit">'
+        if can_submit:
+            html += '<input type="submit" value="Submit">'
+        if not can_submit:
+            html += "<h2> Cannot submit question, max attempts achieved or gotten right</h2>"
         html += '</form>'
+        html += """
+        <form action = "/nextq" method = "get">
+        <input type="submit" value="NEXT QUESTION">
+        </form>
+        """
     html += "</body>"
     return html
 
@@ -87,7 +109,7 @@ def find_header(headers,value):
     header_val = None
     for header in headers:
         title = header.split(": ")
-        if value == "code": title=header.split('=')
+        if value == "code" or value == "answer": title=header.split('=')
         if title[0] == value:
             header_val = title[1]
     return header_val
@@ -131,7 +153,7 @@ def register_user(username,user_cookie,d):
     d["users"][user_cookie]["attempt_num"] = [4,4,4,4,4,4,4,4,4,4]
     d["users"][user_cookie]["score"] = 0
     d["users"][user_cookie]["current_q_content"] = None
-    d["users"][user_cookie]["waiting"] = False
+    d["users"][user_cookie]["cookie_sent"] = False
 
 def verify_user(username,password):
     with open('users.json') as f:
@@ -205,13 +227,19 @@ def service_qb(sock,mask,db):
             rq["qb_sock"] = sock
             verify_requests.append(rq)
             #print("SENDING REQUEST:", rq)
+            print("SENDING:", rq['request'])
             sock.send(rq['request'].encode())
         
 
-def send_questions(sock, html_content,cookie,give_cookie):
+def send_questions(sock, html_content,cookie,give_cookie,db):
     if html_content is None: return
-    if give_cookie: response = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={cookie}\n\n' + html_content
-    else: response = 'HTTP/1.1 200 OK\n\n' + html_content
+    else:
+        score = db["users"][cookie]["score"]
+        if not db["users"][cookie]["cookie_sent"]:
+            response = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={cookie}\n\n' + html_content + f"<h2>Current Marks = {score} "
+            db["users"][cookie]["cookie_sent"] = True
+        else:
+            response = 'HTTP/1.1 200 OK\n\n' + html_content + f"<h2>Current Marks = {score} "
     sock.send(response.encode())
 
 def service_connection(sock, mask,db):
@@ -269,7 +297,7 @@ def service_connection(sock, mask,db):
                         #ADD DOUBLE SOCKET REQUEST LATER
                         num = convert_id(10)
                         rq_id = convert_id(id)
-                        request = f"RAND_Q\nMCA\n{num}\n{rq_id}"
+                        request = f"RAND_Q\nMCA\n{num}\n{rq_id}\0"
                         rq = build_request(sock,request,user_cookie,rq_id)
                         if not compare_request(rq):
                             qb_requests.append(rq)
@@ -277,6 +305,10 @@ def service_connection(sock, mask,db):
                         print("RQ, ", qb_requests)
                 else:
                     incorrectlogin = True
+
+            elif rq_type[0:3] == "POST" and rq_type[4:10] == "/nextq " and user_cookie:
+                db["users"][user_cookie]["current_q"] += 1
+                custom_webpage = True
             elif rq_type[0:4] == "POST" and rq_type[5:16] == "/codeanswer":
                 
                 question_num = db['users'][user_cookie]["current_q"]
@@ -291,9 +323,8 @@ def service_connection(sock, mask,db):
                     #print("CODE =\n")
                     #print(code)
                     decode = unquote(code)
-                    question_num = db['users'][user_cookie]
                     rq_id = convert_id(id)
-                    request = f"MARKING\n{question_num}\nMCA\n{decode}\n{rq_id}"
+                    request = f"MARKING\n{question_num}\nCde\n{decode}\n{rq_id}\0"
                     sock.send("HTTP/1.1 200 OK\n\n<h1>Marking result...</h1>".encode())
                     rq = build_request(sock,request,user_cookie,rq_id)
                     if not compare_request(rq):
@@ -303,6 +334,29 @@ def service_connection(sock, mask,db):
                         waiting.append((sock,user_cookie))
                     print("returning please don't DC")
                     return
+            elif rq_type[0:4] == "POST" and rq_type[5:14] == "/mcanswer":
+                questions= db['users'][user_cookie]["questions"]
+                q_index = db['users'][user_cookie]["current_q"]
+                current_q = questions[q_index]
+                db['users'][user_cookie]["attempt_num"][q_index] -= 1 
+                if db['users'][user_cookie]["attempt_num"][q_index] < 1:
+                    too_many_attempts = True
+                if not too_many_attempts:
+                    answer = find_header(response,"answer")
+                    if answer == None:
+                        answer = 'failure'
+                    rq_id = convert_id(id)
+                    qnum = convert_id(current_q)
+                    request = f"MARKING\nMCA\n{qnum}\n{answer}\n{rq_id}\0"
+                    rq = build_request(sock,request,user_cookie,rq_id)
+                    if not compare_request(rq):
+                        qb_requests.append(rq)
+                        id += 1
+                    if not search_waiting(sock,waiting):
+                        waiting.append((sock,user_cookie))
+                    return
+
+
     if not data and not search_waiting(sock,waiting):
         #close connection
         if verbose: print(f'Client disconected (no data): {sock.getpeername()}\n'); print("-----------------------------------------------\n")
@@ -331,7 +385,7 @@ def service_connection(sock, mask,db):
                 current_q = db["users"][user_cookie]["questions"][current_q_index]
                 current_q = convert_id(current_q)
                 curr_id = convert_id(id)
-                request = f"Q_CONTENT\n{current_q}\n{curr_id}"
+                request = f"Q_CONTENT\nMCA\n{current_q}\n{curr_id}\0"
                 rq = build_request(sock,request,user_cookie,curr_id)
                 if not compare_request(rq):
                     qb_requests.append(rq)
@@ -339,11 +393,11 @@ def service_connection(sock, mask,db):
 
                 if not search_waiting(sock,waiting):
                     waiting.append((sock,user_cookie))
-            html = create_html(db["users"][user_cookie]["current_q_content"])
+            html = create_html(db,user_cookie)
             if html is None:
                 if not search_waiting(sock,waiting):
                     waiting.append((sock,user_cookie))
-            send_questions(sock,html,user_cookie,give_cookie)
+            send_questions(sock,html,user_cookie,give_cookie,db)
         else: sock.send("HTTP/1.1 200 OK\n\n <h1>uhh</h1>".encode())
 
 sel = selectors.DefaultSelector()
@@ -361,9 +415,9 @@ with open("login_page.html","r") as login_page:
     loginHTML = login_page.read()
 
 while True:
-    if qb_requests != []:
-        print(qb_requests)
-    print(id)
+    #if qb_requests != []:
+    #    print(qb_requests)
+    #print(id)
     backup_data(userinfo)
     events = sel.select(timeout=1)
     for key,mask in events:
