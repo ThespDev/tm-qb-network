@@ -24,7 +24,9 @@ qb_socket.bind((host, QB_PORT))
 qb_socket.listen() 
 
 qb_requests = []
-
+verify_requests = []
+waiting = []
+id = 0
 
 def create_html(request):
     
@@ -64,6 +66,9 @@ def create_html(request):
     html += "</body>"
     return html
 
+def build_request(insock,request,cookie,id):
+    rq = {"client_sock":insock,"request":request,"qb_sock":None,"cookie":cookie}
+    return rq
 #used for cookies, content ect
 def find_header(headers,value):
     header_val = None
@@ -79,6 +84,12 @@ def backup_data(db):
     with open("backup","wb") as f:
         pickle.dump(db,f,protocol=pickle.HIGHEST_PROTOCOL)
 
+def convert_id(id):
+    if id<10:
+        return '0' + str(id)
+    else:
+        return str(id)
+
 #For emergency crashes
 def open_backup():
     try:
@@ -93,10 +104,11 @@ def register_user(username,user_cookie,d):
     d["users"][user_cookie]["username"] = username
     d["users"][user_cookie]["finished"] = False
     d["users"][user_cookie]["questions"] = []
+    d["users"][user_cookie]["completed"] = [False,False,False,False,False,False,False,False,False,False,]
     d["users"][user_cookie]["current_q"] = None
     #Index of attempt_num array corresponds to attempts for question of same index
     #if >3, ignore
-    d["users"][user_cookie]["attempt_num"] = [0,0,0,0,0,0,0,0,0,0]
+    d["users"][user_cookie]["attempt_num"] = [4,4,4,4,4,4,4,4,4,4]
     d["users"][user_cookie]["score"] = 0
 
 def verify_user(username,password):
@@ -134,10 +146,30 @@ def service_qb(sock,mask,db):
                 break
         data = b''.join(datab)
         print(data)
-        sock.send("test".encode())
+
+        fields = data.decode().split('\n')
+        for rq in verify_requests:
+            if rq["qb_sock"] == sock and fields[0] == "MARKING" and fields[3] == rq["id"]:
+                verify_requests.remove(rq)
+                if fields[2] == "correct":
+                    current_q = db["users"][rq["cookie"]]["current_q"]
+                    current_q_index = db["users"][rq["cookie"]]["questions"].index(current_q)
+                    db["users"][rq["cookie"]]["completed"][current_q_index] = True
+                    db["users"][rq["cookie"]]["score"] += (db["users"][rq["cookie"]]["attempt_num"]+1)%4
+
+
+
+
+            
+
+
+            
     if mask & selectors.EVENT_WRITE:
         if qb_requests:
-            sock.send(qb_requests.pop(0)[1])
+            rq = qb_requests.pop(0)
+            rq["qb_sock"] = sock
+            verify_requests.append(rq)
+            sock.send(rq['request'])
         
 
 def send_questions(sock, html_content,cookie,give_cookie):
@@ -146,6 +178,7 @@ def send_questions(sock, html_content,cookie,give_cookie):
     sock.send(response.encode())
 
 def service_connection(sock, mask,db):
+    global id
     data = None
     serve_standard = False
     incorrectlogin = False
@@ -205,8 +238,8 @@ def service_connection(sock, mask,db):
             question_num = db['users'][user_cookie]["current_q"]
             #q_index = db['users'][user_cookie]["questions"].index(question_num)
             q_index = 2
-            db['users'][user_cookie]["attempt_num"][q_index] += 1 
-            if db['users'][user_cookie]["attempt_num"][q_index] > 3:
+            db['users'][user_cookie]["attempt_num"][q_index] -= 1 
+            if db['users'][user_cookie]["attempt_num"][q_index] < 1:
                 too_many_attempts = True
             if not too_many_attempts:
                 code = find_header(response,"code")
@@ -216,12 +249,16 @@ def service_connection(sock, mask,db):
                 #print(code)
                 decode = unquote(code)
                 question_num = db['users'][user_cookie]
-                request = f"MARKING\n{question_num}\nMCA\n{decode}"
+                rq_id = convert_id(id)
+                request = f"MARKING\n{question_num}\nMCA\n{decode}\n{rq_id}"
                 sock.send("HTTP/1.1 200 OK\n\n<h1>Marking result...</h1>".encode())
-                qb_requests.append((sock,request))
+                rq = build_request(sock,request,user_cookie,rq_id)
+                id += 1
+                qb_requests.append(rq)
+                waiting.append(sock)
                 print("returning please don't DC")
                 return
-    if not data:
+    if not data and sock not in waiting:
         #close connection
         if verbose: print(f'Client disconected (no data): {sock.getpeername()}\n'); print("-----------------------------------------------\n")
         sel.unregister(sock)
@@ -237,12 +274,6 @@ def service_connection(sock, mask,db):
             response = 'HTTP/1.1 200 OK\n\n' + loginHTML + "<h1>INCORRECT LOGIN</h1>"   
             sock.send(response.encode())
         elif custom_webpage:
-            #if first_login:
-            #    print("user cookie is", user_cookie)
-            #    header = f'HTTP/1.1 200 OK\nSet-Cookie:tm-cookie={user_cookie}\n\n'
-            #    response = header + "<h1>CITS3002 Project</h1>"
-            #    sock.send(response.encode())
-            #    print("SENDING HTML \n", response)
             if too_many_attempts:
                 footer = "<h1>TOO MANY ATTEMPTS</h1>"
             html = create_html(["Q_CONTENT","Question?","c","apples","baananas","cake","pie"])
@@ -261,9 +292,6 @@ print(userinfo)
 
 with open("login_page.html","r") as login_page:
     loginHTML = login_page.read()
-
-with open("multi_choice.html","r") as multi_page:
-    multiHTML = multi_page.read()
 
 while True:
     backup_data(userinfo)
