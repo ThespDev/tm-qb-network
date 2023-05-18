@@ -79,69 +79,138 @@ int main(int argc, char* argv[]) {
     send_response(socket_desc, mode);
 
  ////PRIMARY LOOP, responses and returns----------------
-    printf("Inital Setup done, now running in serving mode\n");
+    printf("Inital Setup done, Awaiting contanct from server...\n");
+
     while (1){//Looping server mode 
       char Requesttype[BUFFER_SIZE/2];
       read_request(socket_desc,Requesttype);      
+      char responsetext[BUFFER_SIZE*2];
+      char *messageID = calloc(4,sizeof(char));
+      strcat(messageID,&Requesttype[strlen(Requesttype)-3]);
+      //Get last two charachters of a string, convert it to a number
+      int response = 0;
+      Requesttype[strlen(Requesttype)-2]='\0';
 
-    //If server requests a random question (maybe turn into function later)
-      if (strcmp(Requesttype-7,"RAND_Q")){
+    
+      
+      //RANDOM Q REQUEST
+      //If server requests a random question (maybe turn into function later)
+      if (strncmp(Requesttype,"RAND_Q",6)==0){
+        strcpy(responsetext,"RAND_Q\n");
         char Type[3];
         strcpy(Type,Requesttype+7); //Cut off rest of text wit how small
-        char num[BUFFER_SIZE];
-        strcpy(num,Requesttype);
+        char num[2];
+        strcpy(num,Requesttype+10);
         int amountofq;
-        memmove(num,num+10,strlen(num));
         amountofq = atoi(num); 
         int randqlist[amountofq];
-        if (strcmp(Type,"MCA"))
+        if (strcmp(Type,"MCA")==0)
           randomQ(amountofq, CSVFIlePars.mcanum,randqlist);
         else
           randomQ(amountofq, CSVFIlePars.cnum,randqlist);
-        char responsetext[sizeof(randqlist)*2+3];
-        responsetext[0] = '[';
-        for (int i = 0; i < sizeof(randqlist); i++){
-          char temp[10];
+        strcat(responsetext,"[");
+        int i = 0;
+        for (; i < amountofq; i++){
+          char temp[4];
           sprintf(temp,"%i",randqlist[i]);
           strcat(responsetext,temp);
           strcat(responsetext,",");
         }
-        strcat(responsetext, "]");
-        send_response(socket_desc, responsetext);
+        responsetext[strlen(responsetext)-1] = ']';
+        response = 1;  
+      }
+
+
+      //CONTENT OF Q REQUEST
+      //FOR WHEN SERVER REQUESTS CONTENT OF QUESTION
+      else if(strncmp(Requesttype,"Q_CONTENT",8)==0){ 
+        strcpy(responsetext,"Q_CONTENT\n");
+        char Type[4];
+        strncpy(Type,Requesttype+10,3);
+        Type[3] = '\0';
+        char num[2];
+        strncpy(num,Requesttype+14,2);
+        int qnum;
+        qnum = atoi(num);
+        if (strcmp(Type,"MCA")==0){
+          strcat(responsetext,"m\n");
+          strcat(responsetext,CSVFIlePars.multi_choiceqs[qnum].qtext);
+          strcat(responsetext,"\n[");
+          for (int x =0; x < 4; x++){
+            strcat(responsetext,CSVFIlePars.multi_choiceqs[qnum].options[x]);
+            strcat(responsetext,",");
+          }
+          responsetext[strlen(responsetext)-1] = ']';
+        }
+        else {
+          strcat(responsetext,"c\n");
+          strcat(responsetext,CSVFIlePars.programqs[qnum].qtext); 
+        }
+        response = 1;
+      }
+      
+      //MARKING REQUESTS
+      //FOR WHEN WE WANT MARKS
+      //One must be wary of the specter of
+      // Karl Marks ☭
+      else if (strncmp(Requesttype,"MARKING",6)==0){
+        strcpy(responsetext,"MARKING\n");
+        char Type[4];
+        strncpy(Type,Requesttype+8,3);
+        Type[3] = '\0';
+        char num[2];
+        strncpy(num,Requesttype+12,2);
+        int qnum;
+        qnum = atoi(num);
+        char StAnswer[strlen(Requesttype)]; //member of the holy c
+        strcpy(StAnswer,Requesttype+15);
+        StAnswer[strlen(StAnswer)-1] = '\0'; //Get rid of formatting new line
+        if (strcmp(Type,"MCA")==0){
+            
+        }
+
+      }
+
+
+    if (response){
+      strcat(responsetext,messageID);
+      send_response(socket_desc, responsetext);
+      printf("Data Recived and Response sent to TM Server\n");
+      response = 0;
       }
     }
        
 
-    // QB receives a request for random questions from TM
-    char request_type[BUFFER_SIZE];
-    read_request(socket_desc, request_type);
-    printf("Request type received: %s\n", request_type);
-
-
-    // QB receives a request for question content from TM
-    read_request(socket_desc, request_type);
-    printf("Request type received: %s\n", request_type);
-
-    // QB sends a response with question content to TM
-    send_response(socket_desc, "Q_CONTENT\n");
-    send_response(socket_desc, "Question content goes here\n");
-
-    if (javamode)
-        send_response(socket_desc, "m\njava\nc\npython\nhaskell\n");
-    else if (cmode)
-        send_response(socket_desc, "c\n");
-    else if (pythonmode)
-        send_response(socket_desc, "m\n");
-
-    // QB receives a request for marking the response from TM
-    read_request(socket_desc, request_type);
-    printf("Request type received: %s\n", request_type);
-
-    // QB sends a response with marking results to TM
-    send_response(socket_desc, "MARKING\n");
-    send_response(socket_desc, "correct\n");
-
-    // Close the socket
+//    // QB receives a request for random questions from TM
+//    char request_type[BUFFER_SIZE];
+//    read_request(socket_desc, request_type);
+//    printf("Request type received: %s\n", request_type);
+//
+//
+//    // QB receives a request for question content from TM
+//    read_request(socket_desc, request_type);
+//    printf("Request type received: %s\n", request_type);
+//
+//    // QB sends a response with question content to TM
+//    send_response(socket_desc, "Q_CONTENT\n");
+//    send_response(socket_desc, "Question content goes here\n");
+//
+//    if (javamode)
+//        send_response(socket_desc, "m\njava\nc\npython\nhaskell\n");
+//    else if (cmode)
+//        send_response(socket_desc, "c\n");
+//    else if (pythonmode)
+//        send_response(socket_desc, "m\n");
+//
+//    // QB receives a request for marking the response from TM
+//    read_request(socket_desc, request_type);
+//    printf("Request type received: %s\n", request_type);
+//
+//    // QB sends a response with marking results to TM
+//    send_response(socket_desc, "MARKING\n");
+//    send_response(socket_desc, "correct\n");
+//
+//    // Close the socket
     close(socket_desc);
 
     return 0;

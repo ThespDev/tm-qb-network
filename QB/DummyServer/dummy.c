@@ -134,20 +134,66 @@ while(1){
   printf("Language found as: %s\n",Language);
 
   while(1){ //Testing grounds
-      //
-      //RANDOM QUESTION TEST
-    printf("Sending Request for 5 random questions\n");
-    char *request = "RAND_Q\nMCA\n5";
+
+      //RANDOM QUESTION TESTs
+      // Test 1
+    printf("**Sending Request for 10 random questions\n");
+    char *request = "RAND_Q\nMCA\n10\n56";
     send(new_fd,request,strlen(request),0);
     char response[1024];
     numbytes = recv(new_fd,response,1024,0);
     response[numbytes] = '\0';
     printf("Response: \n%s\n",response);
+      // Test 2
+    sleep(1);
+    printf("**Sending Request for 15 random questions\n");
+    char *request2 = "RAND_Q\nMCA\n15\n06";
+    send(new_fd,request2,strlen(request2),0);
+    numbytes = recv(new_fd,response,1024,0);
+    response[numbytes] = '\0';
+    printf("Response: \n%s\n",response);
+      // Test 3
+    sleep(1);
+    printf("**Sending Request for 5 random code questions\n");
+    char *request3 = "RAND_Q\nCde\n5\n76";
+    send(new_fd,request3,strlen(request3),0);
+    numbytes = recv(new_fd,response,1024,0);
+    response[numbytes] = '\0';
+    printf("Response: \n%s\n",response);
+    sleep(1);
+
+      //CONTENT OF Q TESTS
+      //Test 1
+    printf("**Sending Request for Content of a MCA question\n");
+    char *request4 = "Q_CONTENT\nMCA\n15\n01";
+    send(new_fd,request4,strlen(request4),0);
+    numbytes = recv(new_fd,response,1024,0);
+    response[numbytes] = '\0';
+    printf("Response: \n%s\n",response);
+    sleep(1); 
+
+      //Test 2
+    printf("**Sending Request for Content of a Code question\n");
+    char *request5 = "Q_CONTENT\nCde\n05\n87";
+    send(new_fd,request5,strlen(request5),0);
+    numbytes = recv(new_fd,response,1024,0);
+    response[numbytes] = '\0';
+    printf("Response: \n%s\n",response);
+
+      //MARKING TESTS
+      //Test 1
+    printf("**Sending Request for Marking of a Question\n");
+    printf("#Should respond with Wrong when using C file");
+    char *request6 = "MARKING\nMCA\n05\n2\n71";
+    send(new_fd,request6,strlen(request6),0);
+    numbytes = recv(new_fd,response,1024,0);
+    response[numbytes] = '\0';
+    printf("Response: \n%s\n",response); 
+
+
     break;
-      //Content Test
-    printf("DNDNDN\n");
-    
   }
+  close(new_fd);
   printf("------Disconnected!-----\n");
 }
 
