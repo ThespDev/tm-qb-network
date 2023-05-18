@@ -43,7 +43,7 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
           multiq[MCA_Counter].lang = (char*)calloc(strlen(Language),sizeof(char));
             memcpy(multiq[MCA_Counter].lang,Language,strlen(Language));
           token = strtok(NULL,",");
-          multiq[MCA_Counter].qnum = atoi(token);
+          multiq[MCA_Counter].qnum = MCA_Counter;
 
           token = strtok(NULL,",");
           strcpy(multiq[MCA_Counter].qtext,token);
@@ -61,7 +61,7 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
       }
         else if (strcmp(token,"Code")==0){
           token = strtok(NULL,",");
-          codeq[Code_Counter].qnum = atoi(token);
+          codeq[Code_Counter].qnum = Code_Counter;
 
           token = strtok(NULL,",");
           codeq[Code_Counter].lang = (char*)calloc(strlen(Language),sizeof(char));
@@ -85,13 +85,11 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
     }
     printf("\nParsisng successs! MCA: %i, Code: %i\n",MCA_Counter,Code_Counter);
     struct parsedcsv returnstruct;
-    if (codeq[Code_Counter-1].qnum > multiq[MCA_Counter-1].qnum){
-      returnstruct.numq = codeq[Code_Counter-1].qnum;}
-    else{ returnstruct.numq=multiq[MCA_Counter].qnum;}
     memcpy(returnstruct.programqs,codeq,sizeof(codeq));
     memcpy(returnstruct.multi_choiceqs,multiq,sizeof(multiq));
     returnstruct.cnum = Code_Counter+1;
     returnstruct.mcanum = MCA_Counter+1;
+    returnstruct.numq = Code_Counter + MCA_Counter + 2;
     return returnstruct;
 } 
   
@@ -104,18 +102,18 @@ void write_question_and_answer(char* file_path, char* question, char* answer){
 }
 
 // function to read a random q and 
-int* randomQ(int amount,int upper, int *randq){
-  printf("Seed Numbers: %i %i\n",amount,upper);
+void randomQ(int amount,int upper, int *randq){
+  int *ranq = malloc(amount);
   srand(time(0));
   for (int x = 0;x != amount;x++){
     randq[x] = (rand() % (upper));
-    for (int y=0; y < sizeof(randq);y++){
+    //TODO turn this loop int a function so we can summon and make sure 100% values in list don't repeat
+    for (int y=0; y != x;y++){
       if (randq[x] == randq[y])
         randq[x] = (rand()%(upper));
     }
   }
-  return randq;
-  
+  return;  
 }
 
 
