@@ -82,14 +82,14 @@ int main(int argc, char* argv[]) {
     printf("Inital Setup done, Awaiting contanct from server...\n");
 
     while (1){//Looping server mode 
-      char Requesttype[BUFFER_SIZE/2];
+      char *Requesttype = calloc(BUFFER_SIZE,sizeof(char));
       read_request(socket_desc,Requesttype);      
       char responsetext[BUFFER_SIZE*2];
       char *messageID = calloc(4,sizeof(char));
-      strcat(messageID,&Requesttype[strlen(Requesttype)-3]);
+      strcat(messageID,&Requesttype[strlen(Requesttype)-2]);
       //Get last two charachters of a string, convert it to a number
       int response = 0;
-      Requesttype[strlen(Requesttype)-2]='\0';
+      Requesttype[strlen(Requesttype)-3]='\0';
 
     
       
@@ -162,17 +162,53 @@ int main(int argc, char* argv[]) {
         strncpy(num,Requesttype+12,2);
         int qnum;
         qnum = atoi(num);
+        strncat(responsetext,num,2);
+        strcat(responsetext,"\n");
+        strncat(responsetext,Type,3);
         char StAnswer[strlen(Requesttype)]; //member of the holy c
         strcpy(StAnswer,Requesttype+15);
         StAnswer[strlen(StAnswer)-1] = '\0'; //Get rid of formatting new line
         if (strcmp(Type,"MCA")==0){
-            
+          if(CSVFIlePars.multi_choiceqs[qnum].answer==atoi(StAnswer))
+            strcat(responsetext,"\nCorrect");
+          else 
+            strcat(responsetext,"\nIncorrect");
         }
-
+        else{ //Handling code it self mine gott
+          FILE * Codefle = fopen("./StdntAnswer.temp","w");
+          if (Codefle == NULL){printf("Error, Couldn't setup file"); usage();}
+          fprintf(Codefle,"%s\n",StAnswer);
+          fflush(Codefle);
+          char command[BUFFER_SIZE];
+          if (javamode){
+            printf("Java");
+          }
+          else if (cmode){
+            strcpy(command,"gcc -o test -x c ~/tm-qb-network/QB/StdntAnswer.temp");
+            char Output[BUFFER_SIZE];
+            exec(command,Output);
+            puts(Output);
+            if (strcmp(Output,"Cde")!=0){
+              printf("File couldn't compile");
+              strcat(responsetext,"Incorrect");
+            }
+            else{
+              strcpy(command,"./test");
+            }
+          }
+          else if (pythonmode){
+            printf("Python");
+          }
+          //Code Generated and put in fild, now time to execute
+          
+          fclose(Codefle);
       }
+      response =1;
+     }
 
 
     if (response){
+      strcat(responsetext,"\n");
       strcat(responsetext,messageID);
       send_response(socket_desc, responsetext);
       printf("Data Recived and Response sent to TM Server\n");

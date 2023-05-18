@@ -155,7 +155,7 @@ while(1){
       // Test 3
     sleep(1);
     printf("**Sending Request for 5 random code questions\n");
-    char *request3 = "RAND_Q\nCde\n5\n76";
+    char *request3 = "RAND_Q\nCde\n5\n14";
     send(new_fd,request3,strlen(request3),0);
     numbytes = recv(new_fd,response,1024,0);
     response[numbytes] = '\0';
@@ -182,13 +182,23 @@ while(1){
 
       //MARKING TESTS
       //Test 1
-    printf("**Sending Request for Marking of a Question\n");
+    printf("**Sending Request for Marking of a MCA Question\n");
     printf("#Should respond with Wrong when using C file");
     char *request6 = "MARKING\nMCA\n05\n2\n71";
     send(new_fd,request6,strlen(request6),0);
     numbytes = recv(new_fd,response,1024,0);
     response[numbytes] = '\0';
     printf("Response: \n%s\n",response); 
+      //Test 2
+    printf("**Sending Request for Marking of a code Question\n");
+    printf("#Should respond with wrong when using C file\n");
+    char *request7 = "MARKING\nCde\n05\n#include <stdio.h> \nint main() \n printf(\"Hello World\\n\"); \nreturn 0;} \n71";
+    send(new_fd,request7,strlen(request7),0);
+    numbytes = recv(new_fd,response,1024,0);
+    response[numbytes] = '\0';
+    printf("Response: \n%s\n",response);
+      //Test 3
+   
 
 
     break;

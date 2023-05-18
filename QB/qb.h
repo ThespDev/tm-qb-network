@@ -49,5 +49,6 @@ struct parsedcsv{
 //Functions go here
 extern struct parsedcsv parsingcsv(char *, char*);
 extern void randomQ(int,int,int *);
+extern char *exec(char *command,char *);
 
 extern void usage();

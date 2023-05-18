@@ -116,6 +116,25 @@ void randomQ(int amount,int upper, int *randq){
   return;  
 }
 
+char *exec(char *command,char *Output){
+  FILE *fp;
+  fp = popen(command,"r");
+  if (fp == NULL){
+    printf("Failed to run command\n");
+    exit(1);
+  }
+  
+  
+  char path[BUFFER_SIZE];
+  while (fgets(path,sizeof(path),fp)!=NULL){
+    strcat(Output,path);
+    printf("%s",path);
+  }
+
+  pclose(fp);
+  return Output;
+}
+
 
 //char* lowerCaser(char *string){
 //  for(int i = 0; string[i]; i++){
