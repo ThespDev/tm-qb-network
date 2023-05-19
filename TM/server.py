@@ -75,7 +75,7 @@ def create_html(db,user_cookie):
 
     elif type == "m":
         index = 1
-        html += '<form action="/mcanswer" method="post">'
+        html += '<form action="/mcanswer" method="get">'
         for i in range(3,7):
             #Check if response needs to be in number or text for mcq
             html += f'<input type="radio" name="answer" value="{index}"> {request[i]}<br>'
@@ -195,10 +195,14 @@ def service_qb(sock,mask,db):
         for rq in verify_requests:
             if rq["qb_sock"] == sock and fields[0] == "MARKING" and fields[-1] == rq["id"]:
                 verify_requests.remove(rq)
-                if fields[2] == "correct":
+                if fields[3] == "Correct":
+                    print("CORRECT")
                     current_q_index = db["users"][rq["cookie"]]["current_q"]
                     db["users"][rq["cookie"]]["completed"][current_q_index] = True
-                    db["users"][rq["cookie"]]["score"] += (db["users"][rq["cookie"]]["attempt_num"][current_q_index]+1)%4
+                    db["users"][rq["cookie"]]["score"] += (db["users"][rq["cookie"]]["attempt_num"][current_q_index])%4
+                    points = db["users"][rq["cookie"]]["attempt_num"][current_q_index]+1
+                    waiting.append((rq["client_sock"],rq["cookie"]))
+                    print(f"adding {points}")
             elif rq["qb_sock"] == sock and fields[0] == "RAND_Q" and fields[-1] == rq["id"]:
                 verify_requests.remove(rq)
                 questions = fields[1]
@@ -270,6 +274,9 @@ def service_connection(sock, mask,db):
         response = data.decode().split('\n')
         request_cookie = find_header(response,"Cookie")
         rq_type = response[0]
+        print(rq_type[0:3] )
+        print(rq_type[4:10] )
+        print(rq_type[4:13])
         if request_cookie is not None:
             #print("COOKIE = " + request_cookie)
             user_cookie = request_cookie.split("=")[1][:-1]
@@ -306,8 +313,11 @@ def service_connection(sock, mask,db):
                 else:
                     incorrectlogin = True
 
-            elif rq_type[0:3] == "POST" and rq_type[4:10] == "/nextq " and user_cookie:
+            elif rq_type[0:3] == "GET" and rq_type[4:10] == "/nextq" and user_cookie:
+                print("nextq submitted")
                 db["users"][user_cookie]["current_q"] += 1
+                db["users"][user_cookie]["current_q_content"] = None
+                waiting.append((sock,user_cookie))
                 custom_webpage = True
             elif rq_type[0:4] == "POST" and rq_type[5:16] == "/codeanswer":
                 
@@ -334,7 +344,8 @@ def service_connection(sock, mask,db):
                         waiting.append((sock,user_cookie))
                     print("returning please don't DC")
                     return
-            elif rq_type[0:4] == "POST" and rq_type[5:14] == "/mcanswer":
+            elif rq_type[0:3] == "GET" and rq_type[4:13] == "/mcanswer":
+                print("MCQ submitted")
                 questions= db['users'][user_cookie]["questions"]
                 q_index = db['users'][user_cookie]["current_q"]
                 current_q = questions[q_index]
@@ -342,9 +353,11 @@ def service_connection(sock, mask,db):
                 if db['users'][user_cookie]["attempt_num"][q_index] < 1:
                     too_many_attempts = True
                 if not too_many_attempts:
-                    answer = find_header(response,"answer")
-                    if answer == None:
-                        answer = 'failure'
+                    #answer = find_header(response,"answer")
+                    #if answer == None:
+                    #    answer = 'failure'
+                    answer = rq_type.split('=')[1][0]
+                    print("ANSWER IS:   ", answer)
                     rq_id = convert_id(id)
                     qnum = convert_id(current_q)
                     request = f"MARKING\nMCA\n{qnum}\n{answer}\n{rq_id}\0"
@@ -380,6 +393,10 @@ def service_connection(sock, mask,db):
         elif custom_webpage:
             if too_many_attempts:
                 footer = "<h1>TOO MANY ATTEMPTS</h1>"
+
+            print(type(db["users"][user_cookie]))
+            print(type(db["users"][user_cookie]["current_q_content"]))
+            print(type(db['users'][user_cookie]["questions"]))
             if db["users"][user_cookie]["current_q_content"] is None and db["users"][user_cookie]["questions"]:
                 current_q_index = db["users"][user_cookie]["current_q"]
                 current_q = db["users"][user_cookie]["questions"][current_q_index]
@@ -397,6 +414,7 @@ def service_connection(sock, mask,db):
             if html is None:
                 if not search_waiting(sock,waiting):
                     waiting.append((sock,user_cookie))
+            print("sending questions")
             send_questions(sock,html,user_cookie,give_cookie,db)
         else: sock.send("HTTP/1.1 200 OK\n\n <h1>uhh</h1>".encode())
 
