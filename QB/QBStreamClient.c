@@ -1,4 +1,5 @@
 #include "qb.h"
+#include <stdio.h>
 
 
 void read_request(int socket, char* buffer) {
@@ -39,8 +40,8 @@ int main(int argc, char* argv[]) {
         printf("Invalid language mode\n");
         return 1;
     }
+    
     struct parsedcsv CSVFIlePars = parsingcsv(CSVFile,mode);
-   
     printf("\nServer running off CSV File %s \nWill do answers in Language %s\n",CSVFile,mode);
     // Create socket
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
@@ -176,34 +177,47 @@ int main(int argc, char* argv[]) {
           else 
             strcat(responsetext,"\nIncorrect");
         }
+
         else{ //Handling code it self mine gott
-          FILE * Codefle = fopen("./StdntAnswer.temp","w");
-          if (Codefle == NULL){printf("Error, Couldn't setup file"); usage();}
-          fprintf(Codefle,"%s\n",StAnswer);
-          fflush(Codefle);
+          FILE * Codefle;
+          char runcommand[50];
           char command[BUFFER_SIZE];
+          char Output[BUFFER_SIZE];
           if (javamode){
-            printf("Java");
+            FILE * Codefle = fopen("./StdntAnswer.java","w"); 
+            if (Codefle == NULL){printf("\nError, Couldn't setup Java file\n"); usage();}
+            strcpy(command,"javac StdntAnswer.java");
+            strcpy(runcommand,"java StdntAnswer");
+            fprintf(Codefle,"%s\n",StAnswer);
+            fclose(Codefle);
           }
           else if (cmode){
-            strcpy(command,"gcc -o test -x c ~/tm-qb-network/QB/StdntAnswer.temp");
-            char Output[BUFFER_SIZE];
-            int ReturedV = system(command);
-            if (ReturedV != 0 ){
+            FILE * Codefle = fopen("./StdntAnswer","w"); if (Codefle == NULL){printf("Error, Couldn't setup C file\n"); usage();} 
+
+            strcpy(command,"gcc -o test -x c ./StdntAnswer");
+            strcpy(runcommand,"./test");
+            fprintf(Codefle,"%s\n",StAnswer);
+            fclose(Codefle);
+          }
+          int ReturedV = system(command);
+          if (ReturedV != 0 ){
               printf("Compile Error\n");
               strcat(responsetext,"\nIncorrect");
-            }
-            else{
-              char Cattext[20];
-              strncpy(Cattext,"\nCorrect",8);
-              for(int x = 0; x < 3; x++){
-                strcpy(command,"");
+          }
+
+          else{
+            char Cattext[20];
+            strncpy(Cattext,"\nCorrect\0",9);
+            for(int x = 0; x < 3; x++){
                 strcpy(Output,"");
-                strcpy(command,"./test");
                 if ((CSVFIlePars.programqs[qnum].inputs[x])!=NULL)
-                  strcat(command,CSVFIlePars.programqs[qnum].inputs[x]);
-                exec(command,Output);
-                if (strcmp(Output,CSVFIlePars.programqs[qnum].outputs[x])!=0){
+                  strcat(runcommand,CSVFIlePars.programqs[qnum].inputs[x]);
+                exec(runcommand,Output);
+                char extra[3] = "";
+                if (javamode){strcpy(extra,"\n\0");} 
+                char *expectedanswer = CSVFIlePars.programqs[qnum].outputs[x];
+                strcat(expectedanswer,extra);
+                if (strcmp(Output,expectedanswer)!=0){
                   puts(CSVFIlePars.programqs[qnum].outputs[x]);
                   printf("\nResponses do not line up to expected values\n");
                   strncpy(Cattext,"\nIncorrect",10);
@@ -212,13 +226,7 @@ int main(int argc, char* argv[]) {
               }
             strcat(responsetext,Cattext);
             }
-          }
-          else if (pythonmode){
-            printf("Python");
-          }
-          //Code Generated and put in fild, now time to execute
-          
-          fclose(Codefle);
+          //Code Generated and put in fild, now time to execute 
       }
       response =1;
      }
