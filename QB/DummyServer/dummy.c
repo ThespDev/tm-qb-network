@@ -165,7 +165,7 @@ while(1){
   //    //CONTENT OF Q TESTS
   //    //Test 1
   //  printf("**Sending Request for Content of a MCA question\n");
-  //  char *request4 = "Q_CONTENT\nMCA\n5\n01";
+  //  char *request4 = "Q_CONTENT\nMCA\n05\n01";
   //  send(new_fd,request4,strlen(request4),0);
   //  numbytes = recv(new_fd,response,1024,0);
   //  response[numbytes] = '\0';

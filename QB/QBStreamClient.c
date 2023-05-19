@@ -4,6 +4,7 @@
 
 void read_request(int socket, char* buffer) {
     recv(socket, buffer, BUFFER_SIZE, 0);
+    puts(buffer);
     // Remove newline character
 }
 
@@ -146,7 +147,7 @@ int main(int argc, char* argv[]) {
           responsetext[strlen(responsetext)-1] = '\0';
         }
         else {
-          strcat(responsetext,"c\n");
+          strcat(responsetext,"Cde\n");
           strcat(responsetext,CSVFIlePars.programqs[qnum].qtext); 
         }
         response = 1;
@@ -235,7 +236,7 @@ int main(int argc, char* argv[]) {
       strcat(responsetext,"\n");
       strcat(responsetext,messageID);
       send_response(socket_desc, responsetext);
-      printf("Data Recived and Response sent to TM Server\n");
+      printf("Data Received and Response sent to TM Server\n");
       response = 0;
       }
     }
