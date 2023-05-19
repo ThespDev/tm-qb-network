@@ -1,0 +1,11 @@
+Question Type (Multi-choice/Text/Code),#Question Number,Question Body,QuestionAnwser/ExpectedResult,Questionpsotibilities(multichoiceonly)/ExpectedResults
+MCA,1,Which of the following is a valid way to define an empty list in Python?,>empty_list = []>empty_list = list()>empty_list = {}>empty_list = (),1
+MCA,2,"What does the ""range"" function in Python return?",> A list of integers>A tuple of integers> An iterator of integers> A dictionary of integers,3
+MCA,3,"What will be the output of the following code?  X = [1, 2, 3, 4, 5] print(x[2:4]) ",">[1, 2]>[2, 3, 4]>[3, 4]>[2, 3]",3
+MCA,4,"Which of the following is the correct way to open a file named ""data.txt"" in read mode?",">file = open(""data.txt"", ""w"")>file = open(""data.txt"", ""r"")>file = open(""data.txt"", ""a"")>file = open(""data.txt"", ""x"")",2
+MCA,5,"What does the "len" function in Python return?",>The number of characters in a string >The number of elements in a list or tuple >The number of key-value pairs in a dictionary >The number of bytes in a file,2
+MCA,6,Which of the following is not a valid data type in Python?,>int>float>string>array,4
+MCA,7,What color is the python logo,>blue and yellow>red and black>white and red>blue and white,1
+MCA,8,Which of the following is an immutable data type in Python?,>dictonary>List>Set>Tuple,4
+MCA,9,What Does the Strip method do in python,>something very nsfw>converts a string to uppercase letters>removes leading and trailing white spaces from a string>reverse order of charachters in a string,3
+MCA,10,How can you check the type of an object in Python?,> Using the "check_type" function> By calling the "type()" function> y using the "typeof" keyword>Using the "obj_type" attribute,2

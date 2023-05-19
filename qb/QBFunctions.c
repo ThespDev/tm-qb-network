@@ -93,8 +93,8 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
     struct parsedcsv returnstruct;
     memcpy(returnstruct.programqs,codeq,sizeof(codeq));
     memcpy(returnstruct.multi_choiceqs,multiq,sizeof(multiq));
-    returnstruct.cnum = Code_Counter+1;
-    returnstruct.mcanum = MCA_Counter+1;
+    returnstruct.cnum = Code_Counter;
+    returnstruct.mcanum = MCA_Counter;
     returnstruct.numq = Code_Counter + MCA_Counter + 2;
     return returnstruct;
 } 
