@@ -193,7 +193,6 @@ int main(int argc, char* argv[]) {
           }
           else if (cmode){
             FILE * Codefle = fopen("./StdntAnswer","w"); if (Codefle == NULL){printf("Error, Couldn't setup C file\n"); usage();} 
-
             strcpy(command,"gcc -o test -x c ./StdntAnswer");
             strcpy(runcommand,"./test");
             fprintf(Codefle,"%s\n",StAnswer);
