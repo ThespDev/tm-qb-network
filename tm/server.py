@@ -3,7 +3,7 @@ import json
 import sys
 import selectors
 import pickle
-from urllib.parse import unquote
+from urllib.parse import unquote_plus
 
 csock = None
 javasock = None
@@ -47,23 +47,23 @@ def create_html(db,user_cookie):
     type = request[1]
     html = "<body>"
     html += f"<h2>{question}<h2>"
-    if type == "c":
-        html += '<form action="/codeanswer" method="post">'
+    if type == "Cde":
+        html += '<form action="/codeanswer" method="GET">'
         html += '<p> Please put the answer below:</p>'
         if curr_q < 5:
 
             html += '''<textarea id="code" name="code" rows="10" cols="50">
-            public class StdntAnswer{
-            
-            }
-            </textarea>'''
+ public class StdntAnswer{
+
+}
+</textarea>'''
 
         if curr_q > 4:
             html += '''<textarea id="code" name="code" rows="10" cols="50">
-            #include <stdio.h>
+ #include <stdio.h>
 
-            int main(int argc, char *argv[]) {
-            return 0;
+int main(int argc, char *argv[]) {
+return 0;
             }
             </textarea>'''
         if can_submit:
@@ -95,7 +95,7 @@ def create_html(db,user_cookie):
 
         """
 
-    elif type == "m":
+    elif type == "MCA":
         index = 1
         html += '<form action="/mcanswer" method="get">'
         for i in range(3,7):
@@ -121,14 +121,13 @@ def create_html(db,user_cookie):
     return html
 
 def build_request(insock,request,cookie,id):
-    rq = {"client_sock":insock,"request":request,"qb_sock":None,"cookie":cookie,"id":id,"sent":False}
+    rq = {"client_sock":insock,"request":request,"qb_sock":None,"cookie":cookie,"id":id,"sent":False, "type":None}
     return rq
 
 def compare_request(rq):
     for requests in verify_requests:
-        if rq["client_sock"] == requests["client_sock"] and rq["request"][:-3] == requests["request"][:-3] and rq["cookie"] == requests["cookie"]:
+        if rq["client_sock"] == requests["client_sock"] and rq["cookie"] == requests["cookie"]:
             return True
-    print("NOT SAME")
     return False
 
 #used for cookies, content ect
@@ -211,28 +210,22 @@ def service_qb(sock,mask,db):
         while True:
             try:
                 block = sock.recv(1024)
-                print(block)
                 if len(block) == 0:
-                    print("breaking")
                     break
                 datab.append(block)
             except BlockingIOError:
-                print("error")
                 break
         data = b''.join(datab)
         print(data)
         fields = data.decode().split('\n')
         if fields[0] == "c":
             csock = sock
-            print("csock = ", csock)
         elif fields[0] == "java":
             javasock = sock
-            print("javasock = ", javasock)
         for rq in verify_requests:
             if rq["qb_sock"] == sock and fields[0] == "MARKING" and fields[-1] == rq["id"]:
                 verify_requests.remove(rq)
                 if fields[3] == "Correct":
-                    print("CORRECT")
                     current_q_index = db["users"][rq["cookie"]]["current_q"]
                     db["users"][rq["cookie"]]["completed"][current_q_index] = True
                     db["users"][rq["cookie"]]["score"] += (db["users"][rq["cookie"]]["attempt_num"][current_q_index])%4
@@ -240,6 +233,7 @@ def service_qb(sock,mask,db):
                     waiting.append((rq["client_sock"],rq["cookie"]))
                     print(f"adding {points}")
             elif rq["qb_sock"] == sock and fields[0] == "RAND_Q" and fields[-1] == rq["id"]:
+                type = rq["type"]
                 verify_requests.remove(rq)
                 questions = fields[1]
                 test = questions[1:-1].split(',')
@@ -248,22 +242,27 @@ def service_qb(sock,mask,db):
                 #java came first java is first    
                 if sock == javasock and not db["users"][rq["cookie"]]["questions"]:
                     db["users"][rq["cookie"]]["questions"] = test
+                    if type == "MCA": db["users"][rq["cookie"]]["q_type"] = ["MCA","MCA","MCA","MCA","MCA"]
+                    if type == "Cde": db["users"][rq["cookie"]]["q_type"] = ["Cde","Cde","Cde","Cde","Cde"]
                 #java came second java is first
                 elif sock == javasock and db["users"][rq["cookie"]]["questions"]:
                     db["users"][rq["cookie"]]["questions"] = test + db["users"][rq["cookie"]]["questions"]
+                    if type == "MCA": db["users"][rq["cookie"]]["q_type"] = ["MCA","MCA","MCA","MCA","MCA"] + db["users"][rq["cookie"]]["q_type"]
+                    if type == "Cde": db["users"][rq["cookie"]]["q_type"] = ["Cde","Cde","Cde","Cde","Cde"] + db["users"][rq["cookie"]]["q_type"]
                 #c came first c is second
                 elif sock == csock and not db["users"][rq["cookie"]]["questions"]:
                     db["users"][rq["cookie"]]["questions"] = test
+                    if type == "MCA": db["users"][rq["cookie"]]["q_type"] = ["MCA","MCA","MCA","MCA","MCA"]
+                    if type == "Cde": db["users"][rq["cookie"]]["q_type"] = ["Cde","Cde","Cde","Cde","Cde"]
                 #c came second and c is second
                 elif sock == csock and db["users"][rq["cookie"]]["questions"]:
                     db["users"][rq["cookie"]]["questions"] = db["users"][rq["cookie"]]["questions"] + test
-                #print(db["users"][rq["cookie"]]["questions"] )
+                    if type == "MCA": db["users"][rq["cookie"]]["q_type"] = db["users"][rq["cookie"]]["q_type"] + ["MCA","MCA","MCA","MCA","MCA"] 
+                    if type == "Cde": db["users"][rq["cookie"]]["q_type"] = db["users"][rq["cookie"]]["q_type"] + ["Cde","Cde","Cde","Cde","Cde"]
+            
             elif rq["qb_sock"] == sock and fields[0] == "Q_CONTENT" and fields[-1] == rq["id"]:
                 verify_requests.remove(rq)    
                 db["users"][rq["cookie"]]["current_q_content"] = fields
-                curr_q = db["users"][rq["cookie"]]["current_q"]
-                db["users"][rq["cookie"]]["q_type"][curr_q] = fields[1]
-                print("get content: " ,fields)
                     
                 
 
@@ -279,15 +278,21 @@ def service_qb(sock,mask,db):
             rq = qb_requests.pop(0)
             if rq["qb_sock"] == sock:
                 verify_requests.append(rq)
-                print("SENDING:", rq['request'])
                 sock.send(rq['request'].encode())
             elif rq["qb_sock"] is None:
                 rq["qb_sock"] = sock
                 verify_requests.append(rq)
-                print("SENDING:", rq['request'])
+  
                 sock.send(rq['request'].encode())
-            else:
-                qb_requests.append(rq)
+            elif rq["qb_sock"] != sock and  rq["qb_sock"] == csock:
+                verify_requests.append(rq)
+                csock.send(rq['request'].encode())
+            elif rq["qb_sock"] != sock and  rq["qb_sock"] == javasock:
+                verify_requests.append(rq)
+                javasock.send(rq['request'].encode())
+
+
+
         
 
 def send_questions(sock, html_content,cookie,give_cookie,db):
@@ -308,11 +313,8 @@ def service_connection(sock, mask,db):
     incorrectlogin = False
     custom_webpage = False
     too_many_attempts = False
-    #first_login = False
     give_cookie = False
-    #connection_type = sock.getsockname()[1]
-    #print("Event Read", (mask & selectors.EVENT_READ))
-    #print("Event Write",(mask & selectors.EVENT_WRITE))
+ 
     
     if mask & selectors.EVENT_READ:
         datab = []
@@ -329,21 +331,16 @@ def service_connection(sock, mask,db):
         response = data.decode().split('\n')
         request_cookie = find_header(response,"Cookie")
         rq_type = response[0]
-        print(rq_type[0:3] )
-        print(rq_type[4:10] )
-        print(rq_type[4:13])
+
         if request_cookie is not None:
-            #print("COOKIE = " + request_cookie)
             user_cookie = request_cookie.split("=")[1][:-1]
-        else:
+        else:   
             give_cookie = True
-            #print("NO COOKIE :c")
         if not search_waiting(sock,waiting):
             if rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie is None:
                 serve_standard = True
             elif rq_type[0:3] == "GET" and rq_type[4:6] == "/ " and request_cookie:
                 custom_webpage = True
-                print("CUSTOM W E B P A G E ")
                 if not search_waiting(sock,waiting):
                     waiting.append((sock,request_cookie.split("=")[1][:-1]))
             elif rq_type[0:3] == "GET" and rq_type[4:10] == "/login":
@@ -356,26 +353,30 @@ def service_connection(sock, mask,db):
                     custom_webpage=True
                     if user_cookie not in db:
                         register_user(user,user_cookie,db)
-                        #ADD DOUBLE SOCKET REQUEST LATER
                         num = convert_id(5)
                         rq_id1 = convert_id(id)
                         rq_id2 = convert_id(id)
                         request1 = f"RAND_Q\nCde\n{num}\n{rq_id1}\0"
                         request2 = f"RAND_Q\nMCA\n{num}\n{rq_id2}\0"
                         rq1 = build_request(sock,request1,user_cookie,rq_id1)
+                        rq1["type"] = "Cde"
                         rq2 = build_request(sock,request2,user_cookie,rq_id2)
+                        rq2["type"] = "MCA"
                         if not compare_request(rq1):
                             qb_requests.append(rq1)
                             id += 1
                         if not compare_request(rq2):
+                            rq_id2 = convert_id(id)
+                            request2 = f"RAND_Q\nMCA\n{num}\n{rq_id2}\0"
+                            rq2 = build_request(sock,request2,user_cookie,rq_id2)
+                            rq2["type"] = "MCA"
                             qb_requests.append(rq2)
 
-                        print("RQ, ", qb_requests)
+                   
                 else:
                     incorrectlogin = True
 
             elif rq_type[0:3] == "GET" and rq_type[4:10] == "/nextq" and user_cookie:
-                print("nextq submitted")
                 db["users"][user_cookie]["current_q"] += 1
                 if db["users"][user_cookie]["current_q"] > 9:
                     db["users"][user_cookie]["current_q"] = 0
@@ -383,14 +384,13 @@ def service_connection(sock, mask,db):
                 waiting.append((sock,user_cookie))
                 custom_webpage = True
             elif rq_type[0:3] == "GET" and rq_type[4:10] == "/prevq" and user_cookie:
-                print("prevq submitted")
                 db["users"][user_cookie]["current_q"] -= 1
                 if db["users"][user_cookie]["current_q"] < 0:
                     db["users"][user_cookie]["current_q"]  = 9
                 db["users"][user_cookie]["current_q_content"] = None
                 waiting.append((sock,user_cookie))
                 custom_webpage = True
-            elif rq_type[0:4] == "POST" and rq_type[4:16] == "/codeanswer":
+            elif rq_type[0:3] == "GET" and rq_type[4:15] == "/codeanswer":
                 
                 question_num = db['users'][user_cookie]["current_q"]
                 q_index = db['users'][user_cookie]["current_q"]
@@ -398,12 +398,11 @@ def service_connection(sock, mask,db):
                 if db['users'][user_cookie]["attempt_num"][q_index] < 1:
                     too_many_attempts = True
                 if not too_many_attempts:
-                    code = find_header(response,"code")
+                    code = rq_type.split('=')[1].split(' ')[0]
                     if code == None:
                         code = 'failure'
-                    #print("CODE =\n")
-                    #print(code)
-                    decode = unquote(code)
+                   
+                    decode = unquote_plus(code)
                     rq_id = convert_id(id)
                     request = f"MARKING\n{question_num}\nCde\n{decode}\n{rq_id}\0"
                     rq = build_request(sock,request,user_cookie,rq_id)
@@ -428,16 +427,12 @@ def service_connection(sock, mask,db):
                 if db['users'][user_cookie]["attempt_num"][q_index] < 1:
                     too_many_attempts = True
                 if not too_many_attempts:
-                    #answer = find_header(response,"answer")
-                    #if answer == None:
-                    #    answer = 'failure'
                     answer = rq_type.split('=')[1][0]
-                    print("ANSWER IS:   ", answer)
                     rq_id = convert_id(id)
                     qnum = convert_id(current_q)
                     request = f"MARKING\nMCA\n{qnum}\n{answer}\n{rq_id}\0"
                     rq = build_request(sock,request,user_cookie,rq_id)
-                    if question_num < 5:
+                    if q_index < 5:
                         rq["qb_sock"] = javasock
                     else:
                         rq["qb_sock"] = csock
@@ -473,7 +468,6 @@ def service_connection(sock, mask,db):
         elif custom_webpage:
             if too_many_attempts:
                 footer = "<h1>TOO MANY ATTEMPTS</h1>"
-
             if db["users"][user_cookie]["current_q_content"] is None and db["users"][user_cookie]["questions"]:
                 current_q_index = db["users"][user_cookie]["current_q"]
                 current_q = db["users"][user_cookie]["questions"][current_q_index]
@@ -482,7 +476,7 @@ def service_connection(sock, mask,db):
                 q_type = db["users"][user_cookie]["q_type"][current_q_index]
                 request = f"Q_CONTENT\n{q_type}\n{current_q}\n{curr_id}\0"
                 rq = build_request(sock,request,user_cookie,curr_id)
-                if question_num < 5:
+                if current_q_index < 5:
                     rq["qb_sock"] = javasock
                 else:
                     rq["qb_sock"] = csock
@@ -507,17 +501,14 @@ if verbose: print(f'Server listening on {host}:{QB_PORT}...')
 userinfo = open_backup()
 if userinfo is None:
     userinfo = {"users":{}}
-print("USERINFO:\n")
-print(userinfo)
+
 
 with open("login_page.html","r") as login_page:
     loginHTML = login_page.read()
 
 while True:
-    #if qb_requests != []:
-    #    print(qb_requests)
-    #print(id)
     backup_data(userinfo)
+
     events = sel.select(timeout=1)
     for key,mask in events:
         if key.data is None:
