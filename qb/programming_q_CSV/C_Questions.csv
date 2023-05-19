@@ -2,21 +2,21 @@
 MCA,1,Which of the following is not a valid data type in C?,>int>string>float>char,2
 MCA,3,"What is the purpose of the ""break"" keyword in C?",>To end a loop or switch statement>To skip a loop iteration>To continue executing a loop>None of the above,0
 MCA,4,Which of the following is a valid way to declare a pointer in C?,>int* x>in *x>int * x>all of the above,4
-MCA,5,What is the value of x after the following code snippet?  >int x = 10;  x += 5,>x=15>x=5>x=50>x=10,1
+MCA,5,What is the value of x after the following code snippet?  int x = 10;  x += 5,>x=15>x=5>x=50>x=10,1
 Code,6,Write Code to output “Hello World”,>>>>Hello World>Hello World>Hello World,
 Code,7,Write Code to output and argument as a string,>hello>test>argumenttest>hello>test>argumenttest,
 MCA,8,Which of the following is not a valid data type in C?,>int>string>float>char,2
-Code,9,Write a C function that takes in two integers as arguments and returns the larger of the two numbers.,> 8 9 >56 42>1223 3543>213 412>9 >56 >3543 >412,
+Code,9,Write a C function that takes in two integers as arguments and returns the larger of the two numbers.,> 8 9 >56 42>1223 3543>9 >56 >3543,
 MCA,11,Which of the following is a valid way to declare a constant in C?,>#define CONSTANT 5>const int CONSTANT = 5;>constexpr int CONSTANT = 5;>All of the above,4
-Code,14,Write C code to take arguments and then output the arguments in reverse,>0 1 2 3 4>4 6 7 8>4 4 0 2 3>hello yes no please,
-MCA,15,"Which of the following is true regarding the ""volatile"" keyword in C?",">The """"volatile"""" keyword is used to declare a variable that can be modified by another thread.>The """"volatile"""" keyword is used to declare a variable that can be modified by an ISR.>The """"volatile"""" keyword is used to declare a variable that can be modified by hardware.>All of the above are true.""",3
-MCA,18,"Which of the following is true regarding the ""static"" keyword in C?",">The ""static"" keyword can be used to declare global variables that can be accessed only within the file they are declared in.>The ""static"" keyword can be used to declare local variables that retain their value between function calls.>The ""static"" keyword can be used to declare functions that can be accessed only within the file they are declared in.>All of the above are true.",4
-Code,19,Write C code to find the factorial of a given number using recursion.,>4>6>8>10,>24>720>40320>3628800
-Code,21,Write C code to reverse a string in place (i.e. without creating a new string).,>hello world>foo bar>reverse>12345,>dlrow olleh>rab oof>esrever>54321
-Code,23,Write C code to check if a given string is a palindrome.,>racecar>hello world>level>algorithm,>true>false>true>false
-MCA,24,"Which of the following is true regarding the ""const"" keyword in C?",">The ""const"" keyword is used to declare a variable that can be modified.>The ""const"" keyword is used to declare a variable that cannot be modified.>The ""const"" keyword is used to declare a variable that has a lifetime throughout the entire program.>None of the above",2
+Code,14,Write C code to take arguments and then output the arguments in reverse,>0 1 2 3 4>4 6 7 8>4 4 0 2 3>hello yes no please>4 3 2 1 0>3 2 0 4 4>please no yes hello,
+MCA,15,"Which of the following is true regarding the ""volatile"" keyword in C?",">The ""volatile keyword is used to declare a variable that can be modified by another thread.>The ""volatile"" keyword is used to declare a variable that can be modified by an ISR.>The """"volatile"""" keyword is used to declare a variable that can be modified by hardware.>All of the above are true.""",3
+MCA,18,"Which of the following is true regarding the ""static keyword in C?",">The ""static"" keyword can be used to declare global variables that can be accessed only within the file they are declared in.>The ""static"" keyword can be used to declare local variables that retain their value between function calls.>The ""static"" keyword can be used to declare functions that can be accessed only within the file they are declared in.>All of the above are true.",4
+Code,19,Write C code to find the factorial of a given number using recursion.,>4>6>8>24>720>40320,
+Code,21,Write C code to reverse a string in place (i.e. without creating a new string).,>hello world>foo bar>reverse>12345>dlrow olleh>rab oof>esrever>54321,
+Code,23,Write C code to check if a given string is a palindrome.,>racecar>hello world>level>true>false>true,
+MCA,24,"Which of the following is true regarding the const"" keyword in C?",">The ""const"" keyword is used to declare a variable that can be modified.>The ""const"" keyword is used to declare a variable that cannot be modified.>The ""const"" keyword is used to declare a variable that has a lifetime throughout the entire program.>None of the above",2
 Code,25,Write C code to reverse the order of words in a given sentence.,>hello world how are you>programming is fun>test case for this problem>solution for this question,>you are how world hello>fun is programming>this for case test problem>question this for solution
 MCA,26,Which of the following is true regarding the 'for' loop in C?,>The 'for' loop is executed at least once.>The 'for' loop is executed as long as the condition is true.>The 'for' loop is executed forever.>None of the above,2
-Code,27,Write C code to check if a given number is prime or not.,>7>14>31>48,>prime>not prime>prime>not prime
+Code,27,"Write C code to output a string of ""prime"" or ""not prime"" given a number",>7>14>31>prime>not prime>prime,
 MCA,28,Which of the following is true regarding the 'sizeof' operator in C?,>The 'sizeof' operator returns the size of the variable in bytes.>The 'sizeof' operator can be used to find the size of any data type.>The 'sizeof' operator can be used to find the number of elements in an array.>All of the above,4
-Code,29,Write C code to concatenate two strings without using the standard library functions.,>hello >world,>helloworld
+Code,29,Write C code to concatenate two strings,>hello world>help me>I hope_this1_willbeokay>helloworld>helpme>I hope_this1_willbeokay,

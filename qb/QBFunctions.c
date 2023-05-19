@@ -115,9 +115,8 @@ void randomQ(int amount,int upper, int *randq){
     randq[x] = (rand() % (upper));
     //TODO turn this loop int a function so we can summon and make sure 100% values in list don't repeat
     for (int y=0; y != x;y++){
-      if (randq[x] == randq[y]){
-        int loopnumber = 0;
-        randomLoop(randq,randq[x],amount,upper,loopnumber);} 
+      if (randq[x] == randq[y])
+         randq[x] = (rand() % (upper));
     }
   }
   return;  

@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
         int qnum;
         qnum = atoi(num);
         if (strcmp(Type,"MCA")==0){
-          strcat(responsetext,"m\n");
+          strcat(responsetext,"MCA\n");
           strcat(responsetext,CSVFIlePars.multi_choiceqs[qnum].qtext);
           strcat(responsetext,"\n");
           for (int x =0; x < 4; x++){
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
         strcat(responsetext,"\n");
         strncat(responsetext,Type,3);
         char StAnswer[strlen(Requesttype)]; //member of the holy c
-        strcpy(StAnswer,Requesttype+15);
+        strcpy(StAnswer,Requesttype+14);
         if (strcmp(Type,"MCA")==0){
           puts(StAnswer);
           if(CSVFIlePars.multi_choiceqs[qnum].answer==atoi(StAnswer))
@@ -218,6 +218,7 @@ int main(int argc, char* argv[]) {
                 char *expectedanswer = CSVFIlePars.programqs[qnum].outputs[x];
                 strcat(expectedanswer,extra);
                 if (strcmp(Output,expectedanswer)!=0){
+                  printf("Expected output:");
                   puts(CSVFIlePars.programqs[qnum].outputs[x]);
                   printf("\nResponses do not line up to expected values\n");
                   strncpy(Cattext,"\nIncorrect",10);
