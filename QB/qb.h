@@ -50,5 +50,6 @@ struct parsedcsv{
 extern struct parsedcsv parsingcsv(char *, char*);
 extern void randomQ(int,int,int *);
 extern char *exec(char *command,char *);
-
+extern char *delimfinder(char*,char*,char,int);
 extern void usage();
+extern void randomLoop(int *, int,int,int,int);

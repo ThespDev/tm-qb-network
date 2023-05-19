@@ -72,12 +72,15 @@ struct parsedcsv parsingcsv(char *filename,char* Language){
           token = strtok(NULL,",");
           char str[strlen(token)];
           strcpy(str,token);
-          char *argfields = strtok(str,">"); 
+          char argfields[BUFFER_SIZE];
           for (int x = 0; x < 3; x ++){
-            char *argfields = strtok(str,">");  
+            strcpy(argfields,"");
+            delimfinder(str,argfields,'>',x);
             codeq[Code_Counter].inputs[x] = (char*)calloc(strlen(argfields),sizeof(char));
               strcpy(codeq[Code_Counter].inputs[x],argfields);}
           for (int x = 0; x < 3; x++){
+            strcpy(argfields,""); 
+            delimfinder(str,argfields,'>',x);
             char *argfields = strtok(str,">"); 
             codeq[Code_Counter].outputs[x] = (char*)calloc(strlen(argfields),sizeof(char));
               strcpy(codeq[Code_Counter].outputs[x],argfields);
@@ -112,11 +115,24 @@ void randomQ(int amount,int upper, int *randq){
     randq[x] = (rand() % (upper));
     //TODO turn this loop int a function so we can summon and make sure 100% values in list don't repeat
     for (int y=0; y != x;y++){
-      if (randq[x] == randq[y])
-        randq[x] = (rand()%(upper));
+      if (randq[x] == randq[y]){
+        int loopnumber = 0;
+        randomLoop(randq,randq[x],amount,upper,loopnumber);} 
     }
   }
   return;  
+}
+
+void randomLoop(int *randq,int randvalue,int length,int upper,int loopnumber){
+  loopnumber=loopnumber+1;
+  if (loopnumber > 20){ return; }
+  randvalue = (rand()%(upper));
+  for (int y=0; y != length;y++){
+      randq[y] = (rand()%(upper));
+      if (randq[y] == randvalue){
+        randomLoop(randq,randvalue,length,upper,loopnumber);
+    }
+  }
 }
 
 char *exec(char *command,char *Output){
@@ -138,19 +154,26 @@ char *exec(char *command,char *Output){
   return Output;
 }
 
-char *delimfinder(char *targetstring,char delim,int number){
+char *delimfinder(char *targetstring,char *buffer,char delim,int xnumber){
+  int number = xnumber + 1;
   int counter = 0;
   int end = 0;
   int start = 0;
   for (;counter<(number+1);end++){
+    if (targetstring[end]=='\0')
+        break;
     if (targetstring[end]==delim){
       counter++;
-      if (counter == number+1)
-        break;
-      start = end;
+      if (counter == number+1){
+        break;}
+      start = end+1;
     } 
   }
-  return targetstring;
+
+  strcpy(buffer,targetstring);
+  buffer[end] = '\0';
+  memmove(buffer,buffer+start,strlen(buffer));
+  return buffer;
 }
 
 //char* lowerCaser(char *string){

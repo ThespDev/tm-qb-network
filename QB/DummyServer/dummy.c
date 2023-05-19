@@ -137,75 +137,84 @@ while(1){
 
       //RANDOM QUESTION TESTs
       // Test 1
-    printf("**Sending Request for 10 random questions\n");
-    char *request = "RAND_Q\nMCA\n10\n56";
-    send(new_fd,request,strlen(request),0);
-    char response[1024];
-    numbytes = recv(new_fd,response,1024,0);
-    response[numbytes] = '\0';
-    printf("Response: \n%s\n",response);
-      // Test 2
-    sleep(1);
-    printf("**Sending Request for 15 random questions\n");
-    char *request2 = "RAND_Q\nMCA\n15\n06";
-    send(new_fd,request2,strlen(request2),0);
-    numbytes = recv(new_fd,response,1024,0);
-    response[numbytes] = '\0';
-    printf("Response: \n%s\n",response);
-      // Test 3
-    sleep(1);
-    printf("**Sending Request for 5 random code questions\n");
-    char *request3 = "RAND_Q\nCde\n5\n14";
-    send(new_fd,request3,strlen(request3),0);
-    numbytes = recv(new_fd,response,1024,0);
-    response[numbytes] = '\0';
-    printf("Response: \n%s\n",response);
-    sleep(1);
+  //  printf("**Sending Request for 10 random questions\n");
+  //  char *request = "RAND_Q\nMCA\n10\n56";
+  //  send(new_fd,request,strlen(request),0);
+   char response[1024];
+  //  numbytes = recv(new_fd,response,1024,0);
+  //  response[numbytes] = '\0';
+  //  printf("Response: \n%s\n",response);
+  //    // Test 2
+  //  sleep(1);
+  //  printf("**Sending Request for 15 random questions\n");
+  //  char *request2 = "RAND_Q\nMCA\n15\n06";
+  //  send(new_fd,request2,strlen(request2),0);
+  //  numbytes = recv(new_fd,response,1024,0);
+  //  response[numbytes] = '\0';
+  //  printf("Response: \n%s\n",response);
+  //    // Test 3
+  //  sleep(1);
+  //  printf("**Sending Request for 5 random code questions\n");
+  //  char *request3 = "RAND_Q\nCde\n5\n14";
+  //  send(new_fd,request3,strlen(request3),0);
+  //  numbytes = recv(new_fd,response,1024,0);
+  //  response[numbytes] = '\0';
+  //  printf("Response: \n%s\n",response);
+  //  sleep(1);
 
-      //CONTENT OF Q TESTS
-      //Test 1
-    printf("**Sending Request for Content of a MCA question\n");
-    char *request4 = "Q_CONTENT\nMCA\n15\n01";
-    send(new_fd,request4,strlen(request4),0);
-    numbytes = recv(new_fd,response,1024,0);
-    response[numbytes] = '\0';
-    printf("Response: \n%s\n",response);
-    sleep(1); 
+  //    //CONTENT OF Q TESTS
+  //    //Test 1
+  //  printf("**Sending Request for Content of a MCA question\n");
+  //  char *request4 = "Q_CONTENT\nMCA\n5\n01";
+  //  send(new_fd,request4,strlen(request4),0);
+  //  numbytes = recv(new_fd,response,1024,0);
+  //  response[numbytes] = '\0';
+  //  printf("Response: \n%s\n",response);
+  //  sleep(1); 
 
-      //Test 2
-    printf("**Sending Request for Content of a Code question\n");
-    char *request5 = "Q_CONTENT\nCde\n05\n87";
-    send(new_fd,request5,strlen(request5),0);
-    numbytes = recv(new_fd,response,1024,0);
-    response[numbytes] = '\0';
-    printf("Response: \n%s\n",response);
+  //    //Test 2
+  //  printf("**Sending Request for Content of a Code question\n");
+  //  char *request5 = "Q_CONTENT\nCde\n05\n87";
+  //  send(new_fd,request5,strlen(request5),0);
+  //  numbytes = recv(new_fd,response,1024,0);
+  //  response[numbytes] = '\0';
+  //  printf("Response: \n%s\n",response);
 
-      //MARKING TESTS
-      //Test 1
-    printf("**Sending Request for Marking of a MCA Question\n");
-    printf("#Should respond with Wrong when using C file");
-    char *request6 = "MARKING\nMCA\n05\n2\n71";
-    send(new_fd,request6,strlen(request6),0);
-    numbytes = recv(new_fd,response,1024,0);
-    response[numbytes] = '\0';
-    printf("Response: \n%s\n",response);
-    sleep(1);
-      //Test 2
+  //    //MARKING TESTS
+  //    //Test 1
+  //  printf("**Sending Request for Marking of a MCA Question\n");
+  //  printf("#Should respond with Right when using Java file");
+  //  char *request6 = "MARKING\nMCA\n00\n2\n71";
+  //  send(new_fd,request6,strlen(request6),0);
+  //  numbytes = recv(new_fd,response,1024,0);
+  //  response[numbytes] = '\0';
+  //  printf("Response: \n%s\n",response);
+  //  sleep(1);
+  //    //Test 2
+  //  printf("**Sending Request for Marking of a code Question\n");
+  //  printf("#Should respond with wrong when using C file\n");
+  //  char *request7 = "MARKING\nCde\n05\n#include <stdio.h> \nint main() \n printf(\"Hello World\\n\"); \nreturn 0;} \n35";
+  //  send(new_fd,request7,strlen(request7),0);
+  //  numbytes = recv(new_fd,response,1024,0);
+  //  response[numbytes] = '\0';
+  //  printf("Response: \n%s\n",response);
+  //    //Test 3
+  //  printf("**Sending Request for Marking of a code Question\n");
+  //  printf("#Should respond with right when using C file\n");
+  //  char *request8 = "MARKING\nCde\n00\n#include <stdio.h> \nint main() {\n printf(\"Hello World\"); \nreturn 0;} \n13";
+  //  send(new_fd,request8,strlen(request8),0);
+  //  numbytes = recv(new_fd,response,1024,0);
+  //  response[numbytes] = '\0';
+  //  printf("Response: \n%s\n",response); 
     printf("**Sending Request for Marking of a code Question\n");
-    printf("#Should respond with wrong when using C file\n");
-    char *request7 = "MARKING\nCde\n05\n#include <stdio.h> \nint main() \n printf(\"Hello World\\n\"); \nreturn 0;} \n35";
+    printf("#Should respond with Right when using Java\n");
+    char *request7 = "MARKING\nCde\n00\n public class StdntAnswer {public static void main(String[] args) {System.out.println(\"Hello World\");}}\n35";
     send(new_fd,request7,strlen(request7),0);
     numbytes = recv(new_fd,response,1024,0);
     response[numbytes] = '\0';
     printf("Response: \n%s\n",response);
-      //Test 3
-    printf("**Sending Request for Marking of a code Question\n");
-    printf("#Should respond with right when using C file\n");
-    char *request8 = "MARKING\nCde\n00\n#include <stdio.h> \nint main() {\n printf(\"Hello World\"); \nreturn 0;} \n13";
-    send(new_fd,request8,strlen(request8),0);
-    numbytes = recv(new_fd,response,1024,0);
-    response[numbytes] = '\0';
-    printf("Response: \n%s\n",response); 
+
+
 
 
     break;
